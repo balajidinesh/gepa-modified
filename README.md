@@ -1,9 +1,11 @@
 # GEPA (Code Artifact)
 
+> If you are looking to use GEPA in your own projects, please visit the main repository at [https://github.com/gepa-ai/gepa](https://github.com/gepa-ai/gepa). This codebase is intended as a research artifact solely for experiment reproduction.
+
 This repository contains the code and data artifact for the paper titled 'GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning' ([https://arxiv.org/abs/2507.19457](https://arxiv.org/abs/2507.19457)).
 
 **Note:**  
-This codebase is intended as a research artifact solely for experiment reproduction. To use GEPA in your own projects, please visit the main repository at [https://github.com/gepa-ai/gepa](https://github.com/gepa-ai/gepa).
+
 
 ---
 
