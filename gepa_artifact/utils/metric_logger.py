@@ -76,7 +76,7 @@ class MetricWithLogger(LangProBeDSPyMetaProgram):
             elif example_split == 'val':
                 me = counter_vals[2]
             elif example_split == 'test':
-                me = counter_vals[4]
+                me = counter_vals[3]
             data = {
                 "example": ex,
                 "prediction": pr,
