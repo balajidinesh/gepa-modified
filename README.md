@@ -103,6 +103,9 @@ Once all experiment commands have finished (or if you use the provided data arti
 
 To reproduce all figures from the GEPA paper, run the notebook [scripts/generate_figures.ipynb](scripts/generate_figures.ipynb).
 
+## Notes
+* Please note that the codebase reads whatever OPENAI_API_KEY is active in the environment. Kindly ensure you set the correct OPENAI_API_KEY environment variable. PAPILLON uses an LLM-as-a-judge metric which uses OPENAI_API_KEY irrespective of the task LM you use (this is to ensure consistent judging across runs.). Thanks @jlesner for highlighting this!
+
 ---
 
 ## Citation
