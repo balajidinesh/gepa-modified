@@ -291,6 +291,9 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         valset: list[dspy.Example]=None,
         gepa_state_to_use: Union[GEPAState, None]=None,
     ):
+        # Algorithm 1 GEPA: Reflective Evolutionary Prompt Optimizer
+        # Inputs: System Φ, dataset Dtrain, eval metric µ, feedback function µf, budget B
+        # Hyperparams: minibatch size b, Pareto set size npareto
         if self.use_wandb:
             wandb_run = initialize_wandb(wandb_api_key=self.wandb_api_key, run_dir=self.run_dir)
 
@@ -325,6 +328,9 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
             max_errors=len(valset) * 100  # Allow for many errors in the validation set
         )
 
+        # Line 1: Split Dtrain into Dfeedback, Dpareto, s.t. |Dpareto| = npareto
+        # Line 2: Initialize candidates P ← [Φ], parents A ← [None]
+        # Lines 3-5: For each (xi, mi) in Dpareto do SΦ[i] ← µ(Φ(xi), mi)
         gepa_state = initialize_gepa_state(
             gepa_state_to_use=gepa_state_to_use,
             run_dir=self.run_dir,
@@ -363,6 +369,7 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
 
         merges_performed = ([], [])
 
+        # Line 6: while budget B not exhausted do
         while (
             (self.num_iters is None or gepa_state.num_full_ds_evals < self.num_iters) and
             (self.max_evals_per_trainval_instance is None or gepa_state.total_num_evals_per_trainval_instance < self.max_evals_per_trainval_instance) and
@@ -476,11 +483,13 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
                 
                 last_iter_found_new_program = False
 
+                # Line 7: k ← SELECTCANDIDATE(P, S)
                 curr_prog_id = self.select_next_candidate_to_update(gepa_state)
                 curr_prog = gepa_state.program_candidates[curr_prog_id]
 
                 gepa_state.full_program_trace[-1]['selected_program_candidate'] = curr_prog_id
 
+                # Line 8: j ← SELECTMODULE(Φk)
                 predictor_to_update_id = gepa_state.named_predictor_id_to_update_next_for_program_candidate[curr_prog_id]
                 gepa_state.full_program_trace[-1]['predictor_to_update_id'] = predictor_to_update_id
                 gepa_state.named_predictor_id_to_update_next_for_program_candidate[curr_prog_id] = (predictor_to_update_id + 1) % len(gepa_state.list_of_named_predictors)
@@ -507,9 +516,11 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
                         break
                 assert module is not None
 
+                # Line 9: M ← minibatch of size b from Dfeedback
                 subsample_ids = self.select_training_sample_and_update_shuffled_trainset(trainset, gepa_state.i)
                 gepa_state.full_program_trace[-1]['subsample_ids'] = subsample_ids
 
+                # Line 10: Gather feedback, scores, traces for Φk[j] on M using µf
                 dataset_with_feedback, subsample_score, subsample_scores = capture_module_trace_with_feedback(
                     module, 
                     curr_prog, 
@@ -537,6 +548,7 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
                         "subsample_score": subsample_score,
                     }, step=gepa_state.i+1)
 
+                # Line 11: π'j ← UPDATEPROMPT(πj, feedbacks, traces[j])
                 instruction_propose_module = ProposeNewInstructionModule(
                     base_program=module, 
                     instruction_lm=self.teacher_lm or dspy.dsp.utils.settings.lm or curr_prog.get_lm(),
@@ -559,6 +571,7 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
                 self.logger.log(f"Iteration {gepa_state.i+1}: Info retrieved from knowledge base: {kb_info}")
                 self.logger.log(f"Iteration {gepa_state.i+1}: Proposed new instruction: {new_instruction}")
 
+                # Line 12: Φ' ← Copy of Φk w/ module j updated by π'j
                 curr_prog_lm = curr_prog.get_lm()
                 new_program = curr_prog.deepcopy()
                 new_program.set_lm(curr_prog_lm)
@@ -572,6 +585,7 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
                 subsample_evaluator_args['return_outputs'] = True
                 subsample_evaluator_args['return_all_scores'] = True
                 subsample_evaluator_args['max_errors'] = len(subsample_ids) * 100
+                # Line 13: σ, σ' ← avg score on M (before, after)
                 subsample_evaluator = dspy.Evaluate(**subsample_evaluator_args)
                 new_subsample_scores = subsample_evaluator(new_program)[2]
                 new_subsample_score = sum(new_subsample_scores)
@@ -588,14 +602,21 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
                         "new_subsample_score": new_subsample_score,
                     }, step=gepa_state.i+1)
                 
+                threshold_adds = 10
+                # Line 14: if σ' improved then
                 if new_subsample_score <= subsample_score:
-                    self.logger.log(f"Iteration {gepa_state.i+1}: New subsample score is not better, skipping")
-                    continue
+                    if gepa_state.i+1 < threshold_adds : 
+                        self.logger.log(f"Iteration {gepa_state.i+1}: New subsample score is not better, but under {threshold_adds} iterations, proceeding anyway")
+                    else : 
+                        self.logger.log(f"Iteration {gepa_state.i+1}: New subsample score is not better, skipping")
+                        continue
 
                 last_iter_found_new_program = True
 
                 self.logger.log(f"Iteration {gepa_state.i+1}: New subsample score is better, going from {subsample_score} to {new_subsample_score}, updating program candidate!")
 
+                # Line 15: Add Φ' to P; Add k to A
+                # Lines 16-18: for each (xi, mi) in Dpareto do SΦ'[i] ← µ(Φ'(xi), mi)
                 new_program_idx, linear_pareto_front_idx = self.run_full_eval_add_new_program_to_gepa_tree(
                     new_program=new_program,
                     gepa_state=gepa_state,
@@ -614,4 +635,5 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         
         gepa_state.save(self.run_dir)
 
+        # Line 21: return Φ* maximizing average score on Dpareto
         return gepa_state
