@@ -102,10 +102,35 @@ print(metrics)
 
 Create a `.env` file with your Azure OpenAI credentials:
 
+```env
+# Azure OpenAI Configuration
+AZURE_API_KEY=your_azure_openai_api_key
+AZURE_API_BASE=https://your-resource-name.openai.azure.com/
+AZURE_API_VERSION=2024-02-15-preview
+AZURE_AD_TOKEN=your_azure_ad_token_if_using_aad_auth
+AZURE_API_TYPE=azure
 ```
-AZURE_OPENAI_API_KEY=your_api_key
-AZURE_OPENAI_ENDPOINT=your_endpoint
+
+### DSPy Azure Configuration
+
+In your code, use the deployment name with the `azure/` prefix:
+
+```python
+import dspy
+
+# Configure DSPy with Azure OpenAI
+lm = dspy.LM("azure/your_deployment_name")
+dspy.configure(lm=lm)
 ```
+
+**Required Environment Variables:**
+- `AZURE_API_KEY` - Your Azure OpenAI API key
+- `AZURE_API_BASE` - Your Azure OpenAI endpoint URL
+- `AZURE_API_VERSION` - API version (e.g., 2024-02-15-preview)
+
+**Optional Environment Variables:**
+- `AZURE_AD_TOKEN` - Azure AD token (if using Azure AD authentication)
+- `AZURE_API_TYPE` - Set to "azure" (usually auto-detected)
 
 ## Docker Container Management
 
