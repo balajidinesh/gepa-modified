@@ -10,7 +10,7 @@ def create_runtime(config: dict = None):
     """Create and initialize the runtime environment"""
     code_config = {
         'docker': {
-            'image': 'superbench:latest',
+            'image': 'super-bench:latest',
         },
         'tool_config': {
             'jupyter_enabled': True,

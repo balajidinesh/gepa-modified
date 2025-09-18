@@ -26,19 +26,24 @@ class SuperReactAgent(dspy_program.LangProBeDSPyMetaProgram, dspy.Module):
     def get_fresh_tools(self):
         return get_runtime_tools()
     
-    def forward(self, query, github_repo, git_commit, instance_id):
+    def forward(self, query, **kwargs):
         tools = self.get_fresh_tools()
-        
+
+        # Extract additional fields from kwargs if they exist in the example
+        github_repo = kwargs.get('github_repo', '')
+        git_commit = kwargs.get('git_commit', '')
+        instance_id = kwargs.get('instance_id', '')
+
         react = dspy.ReAct(
-            "query, github_repo, git_commit -> result: FinishResponse", 
+            "query, github_repo, git_commit -> result: FinishResponse",
             tools=tools,
             max_iters=self.max_iters
         )
-        
+
         result = react(
             query=query,
-            github_repo=github_repo, 
+            github_repo=github_repo,
             git_commit=git_commit
         )
-        
+
         return result
