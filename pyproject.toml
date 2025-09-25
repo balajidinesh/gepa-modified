@@ -22,7 +22,6 @@ dependencies = [
     "pylcs==0.1.1",
     "seaborn",
     "adjustText",
-
     "diskcache",
     "evaluate==0.4.3",
     "fqdn==1.5.1",
@@ -53,7 +52,8 @@ dependencies = [
     "math-verify==0.6.0",
     "lark",
     "sympy",
-    "levenshtein"
+    "levenshtein",
+    "aicodetools>=0.1.7",
 ]
 
 [tool.uv.sources]

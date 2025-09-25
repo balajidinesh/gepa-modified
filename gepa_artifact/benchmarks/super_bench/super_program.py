@@ -1,7 +1,6 @@
 import dspy
 from pydantic import BaseModel, Field
 from typing import Any
-from aicodetools import CodeInstance
 
 from .. import dspy_program
 from .super_utils import create_runtime, get_runtime_tools
@@ -26,19 +25,22 @@ class SuperReactAgent(dspy_program.LangProBeDSPyMetaProgram, dspy.Module):
     def get_fresh_tools(self, id):
         return get_runtime_tools(id)
     
-    def forward(self, query, github_repo, git_commit, instance_id):
+    def forward(self, query, **kwargs):
+        github_repo = kwargs.get('github_repo', '')
+        git_commit = kwargs.get('git_commit', '')
+        instance_id = kwargs.get('instance_id', '')
         tools = self.get_fresh_tools(instance_id)
-        
+
         react = dspy.ReAct(
-            "query, github_repo, git_commit -> result: FinishResponse", 
+            "query, github_repo, git_commit -> result: FinishResponse",
             tools=tools,
             max_iters=self.max_iters
         )
-        
+
         result = react(
             query=query,
-            github_repo=github_repo, 
+            github_repo=github_repo,
             git_commit=git_commit
         )
-        
+
         return result
