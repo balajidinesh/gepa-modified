@@ -23,11 +23,11 @@ class SuperReactAgent(dspy_program.LangProBeDSPyMetaProgram, dspy.Module):
         super().__init__()
         self.max_iters = max_iters
         
-    def get_fresh_tools(self):
-        return get_runtime_tools()
+    def get_fresh_tools(self, id):
+        return get_runtime_tools(id)
     
     def forward(self, query, github_repo, git_commit, instance_id):
-        tools = self.get_fresh_tools()
+        tools = self.get_fresh_tools(instance_id)
         
         react = dspy.ReAct(
             "query, github_repo, git_commit -> result: FinishResponse", 

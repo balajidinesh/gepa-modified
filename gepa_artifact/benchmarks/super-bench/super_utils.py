@@ -2,32 +2,25 @@ import os
 import json
 import re
 from typing import Any, List
-from aicodetools import CodeInstance
+from aicodetools.client import CodeToolsClient
 import dspy
 
-
-def create_runtime(config: dict = None):
+def create_runtime(id):
     """Create and initialize the runtime environment"""
-    code_config = {
-        'docker': {
-            'image': 'superbench:latest',
-        },
-        'tool_config': {
-            'jupyter_enabled': True,
-        }
-    }
+    # Create CodeInstance for Docker environment
     
-    runtime = CodeInstance('docker', code_config, auto_start=True)
-    return runtime
+    client = CodeToolsClient(auto_start=True, docker_image='super-bench:latest', verbose=True, log_folder=f'runs/complete_logs/{id}')
+
+    # tools = client.tools(selection_list=["read_file", "write_file", "edit_file", "run_command"])
+
+    return client
 
 
-def get_runtime_tools():
-    """Get fresh runtime tools with new Docker container"""
-    rt = create_runtime()
-    runtime_tools = rt.get_tools(include=['read_file', 'write_file', 'edit_file', 'run_command'])
-    print("Available Tools:", len(runtime_tools))
+def get_runtime_tools(id):
+    rt = create_runtime(id)
+    runtime_tools = rt.tools(selection_list=["read_file", "write_file", "edit_file", "run_command"])
+    print("Available Tools : ", len(runtime_tools))
     return runtime_tools
-
 
 def evaluate(gold: Any, predicted: Any, float_epsilon: float = 1e-2) -> float:
     """Evaluate predicted value against gold standard"""
