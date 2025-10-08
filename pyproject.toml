@@ -54,6 +54,7 @@ dependencies = [
     "sympy",
     "levenshtein",
     "aicodetools>=0.1.7",
+    "papermill>=2.6.0",
 ]
 
 [tool.uv.sources]

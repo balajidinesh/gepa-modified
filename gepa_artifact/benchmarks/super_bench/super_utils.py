@@ -2,7 +2,7 @@ import os
 import json
 import re
 from typing import Any, List
-from aicodetools.client import CodeToolsClient
+from aicodetools import ClientManager, CodeToolsClient
 import dspy
 
 def create_runtime(id):
@@ -16,8 +16,29 @@ def create_runtime(id):
     return client
 
 
+class RuntimeManager:
+    """Singleton-like runtime manager maintaining one ClientManager."""
+
+    _client_manager = None  # shared instance across all RuntimeManager objects
+
+    def __init__(self):
+        # Create the global ClientManager once
+        if RuntimeManager._client_manager is None:
+            RuntimeManager._client_manager = ClientManager(
+                "super-bench:latest", base_log_dir="runs/super/"
+            )
+
+    def setup(self, id):
+        """Setup client for the given ID."""
+        return RuntimeManager._client_manager.get_client(id)
+
+    def cleanup(self, id):
+        """Cleanup client for the given ID."""
+        return RuntimeManager._client_manager.close_client(id)
+
 def get_runtime_tools(id):
-    rt = create_runtime(id)
+    rmgr = RuntimeManager()
+    rt : CodeToolsClient = rmgr.setup(id)
     runtime_tools = rt.tools(selection_list=["read_file", "write_file", "edit_file", "run_command"])
     print("Available Tools : ", len(runtime_tools))
     return runtime_tools

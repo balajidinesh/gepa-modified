@@ -1,6 +1,6 @@
 from pathlib import Path
 
-BASE_EXPERIMENT_DIR = str((Path(__file__).parent.parent / "experiment_runs_data").resolve())
+BASE_EXPERIMENT_DIR = str((Path(__file__).parent.parent / "experiment_modruns_data").resolve())
 
 MAX_CONTEXT_LENGTH = 8192
 MAX_CONTEXT_LENGTH_TRAINING = 8192
@@ -50,6 +50,13 @@ LM_CONFIGS = [
         "api_key": "env:OPENAI_API_KEY",
         "temperature": 1.0,
     },
+    {
+        "name" : "gpt-4o-mini",
+        "model" : "azure/gpt-4o-mini",
+        "api_key" : "env:AZURE_API_KEY",
+        "api_version" : "env:AZURE_API_VERSION",
+        "api_base" :"env:AZURE_API_BASE",
+    }
 ]
 
 def get_benchmarks():

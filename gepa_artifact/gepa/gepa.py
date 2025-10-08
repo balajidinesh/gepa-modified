@@ -554,8 +554,8 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
                     instruction_lm=self.teacher_lm or dspy.dsp.utils.settings.lm or curr_prog.get_lm(),
                     dataset_with_feedback=dataset_with_feedback, 
                     knowledgebase_qe=self.knowledgebase_qe)
-                if self.teacher_lm is not None:
-                    instruction_propose_module.instruction_propose_module.set_lm(self.teacher_lm)
+                # if self.teacher_lm is not None:
+                #     instruction_propose_module.set_lm(self.teacher_lm)
                 try:
                     output = instruction_propose_module.compile()
                     with open(os.path.join(self.run_dir, "instruction_proposer_inpouts.jsonl"), 'a') as f:
