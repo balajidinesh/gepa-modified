@@ -79,7 +79,7 @@ class BenchmarkMeta:
     dataset_mode: str = "lite"
     # BenchmarkMeta.num_threads has higher priority than run time argument of num_threads
     # use this as an upper bound for the number of threads to use
-    num_threads: int = None
+    num_threads: int = 3
     name: str = None
     metric_with_feedback: Callable = None
     feedback_fn_maps: list[dict] = None

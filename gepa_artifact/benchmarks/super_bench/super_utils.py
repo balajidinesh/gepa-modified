@@ -4,16 +4,23 @@ import re
 from typing import Any, List
 from aicodetools import ClientManager, CodeToolsClient
 import dspy
+from pydantic import BaseModel, Field
 
-def create_runtime(id):
-    """Create and initialize the runtime environment"""
-    # Create CodeInstance for Docker environment
-    
-    client = CodeToolsClient(auto_start=True, docker_image='super-bench:latest', verbose=True, log_folder=f'runs/complete_logs/{id}')
 
-    # tools = client.tools(selection_list=["read_file", "write_file", "edit_file", "run_command"])
 
-    return client
+class FinishResponse(BaseModel):
+    success: bool = Field(..., description="Indicates whether the task was completed successfully.")
+    structured_output: Any = Field(
+        ...,
+        description="The main output or result of the task"
+    )
+    reasoning: str = Field(..., description="Explanation of the reasoning or process followed for the task.")
+    structured_output: Any = Field(
+        ...,
+        description="The main output or result of the task"
+    )
+    summary: str = Field(..., description="Summary of the steps taken to complete the task.")
+
 
 
 class RuntimeManager:
@@ -41,7 +48,7 @@ def get_runtime_tools(id):
     rt : CodeToolsClient = rmgr.setup(id)
     runtime_tools = rt.tools(selection_list=["read_file", "write_file", "edit_file", "run_command"])
     print("Available Tools : ", len(runtime_tools))
-    return runtime_tools
+    return runtime_tools, rt
 
 def evaluate(gold: Any, predicted: Any, float_epsilon: float = 1e-2) -> float:
     """Evaluate predicted value against gold standard"""
@@ -94,72 +101,38 @@ def evaluate_checkpoints(gold_checkpoints: List[str], agent_history: List[Any]) 
     return sum(checkpoints_hit) / len(checkpoints_hit) if checkpoints_hit else 0.0
 
 
-def super_metric(example, prediction, trace=None, pred_name=None, pred_trace=None):
-    """Main metric function for Super benchmark evaluation"""
-    final_submission = prediction.result if hasattr(prediction, 'result') else prediction
+def normalize_trace(obj):
+    """Convert a trace (dict or string) into a list of readable steps."""
+    # --- CASE 1: If it's a structured dict like {'thought_0': ..., 'tool_name_0': ...} ---
+    if isinstance(obj, dict) and any(k.startswith('thought_') for k in obj):
+        steps = []
+        i = 0
+        while f"thought_{i}" in obj or f"tool_name_{i}" in obj or f"observation_{i}" in obj:
+            step = {
+                "thought": obj.get(f"thought_{i}"),
+                "tool_call": {
+                    "name": obj.get(f"tool_name_{i}"),
+                    "args": obj.get(f"tool_args_{i}")
+                } if f"tool_name_{i}" in obj or f"tool_args_{i}" in obj else None,
+                "observation": obj.get(f"observation_{i}")
+            }
+            steps.append(step)
+            i += 1
+        return steps
 
-    print("**** final submission ****:", final_submission)
+    # --- CASE 2: Generic dict (not step-based) ---
+    elif isinstance(obj, dict):
+        return [f"{k}: {v}" for k, v in obj.items()]
 
-    output_folder = 'runs'
-    os.makedirs(output_folder, exist_ok=True)
-
-    metrics = {
-        "submitted": 0,
-        "output_match": 0,
-        "landmarks": 0
-    }
-    
-    task = example
-    submission = None
-    
-    if final_submission:
-        if hasattr(final_submission, 'structured_output') and final_submission.structured_output:
-            metrics["submitted"] = 1
-            submission = final_submission.structured_output
-
-    task_name = task["instance_id"]
-    print(f"Task {task_name}\n****agent submission: {submission}**")
-
-    gold_answer = json.loads(task["answer"]) if task.get("answer") else None
-    if gold_answer:
-        print(f"Task {task_name} gold answer: {gold_answer}")
-        metrics["output_match"] = evaluate(gold=gold_answer, predicted=submission)
-        print(f"Task {task_name} output match metric: {metrics['output_match']}")
-
-    # Handle trace and landmarks
-    if hasattr(prediction, 'trajectory'):
-        trace = prediction.trajectory
-    
-    if trace is not None:
-        trajectory = [str(i[1]) for i in trace] if isinstance(trace[0], (list, tuple)) else [str(i) for i in trace]
-        
-        gold_landmarks = task.get("landmarks", [])
-        if gold_landmarks:
-            metrics["landmarks"] = evaluate_checkpoints(gold_landmarks, trajectory)
-
-        # Save trace to file
-        file_name = f"{example['instance_id']}.txt"
-        file_path = os.path.join(output_folder, file_name)
-        
-        with open(file_path, 'w') as file:
-            file.write(f"Type of trace: {type(trace).__name__}\n\n")
-            file.write(f"Trace length: {len(trace)}\n\n")
-            file.write(f"Content of trace:\n{trace}\n\n")
-            file.write(f"Metrics of the task:\n{metrics}\n\n")
-        
-        print('--' * 20)
-        print('TRACE IS STORED')
-        print('--' * 20)
+    # --- CASE 3: String or other type ---
     else:
-        print("Trace is None. File will not be created.")
-
-    print("metrics", metrics)
-    return metrics
+        return [str(obj)]
 
 
 def super_score(example, prediction, trace=None):
     """Simple scoring function that returns average of output_match and landmarks"""
     final_submission = prediction.result if hasattr(prediction, 'result') else prediction
+    print(prediction)
     
     metrics = {
         "submitted": 0,
@@ -176,28 +149,41 @@ def super_score(example, prediction, trace=None):
             submission = final_submission.structured_output
 
     gold_answer = json.loads(task["answer"]) if task.get("answer") else None
-    if gold_answer:
+
+    print("Gold : ", gold_answer)
+    print("Prediction : ", submission)
+    if gold_answer is not None:
         metrics["output_match"] = evaluate(gold=gold_answer, predicted=submission)
 
     # Handle trace and landmarks
     if hasattr(prediction, 'trajectory'):
         trace = prediction.trajectory
+        print("has_trajectory")
     
     if trace is not None:
-        trajectory = [str(i[1]) for i in trace] if isinstance(trace[0], (list, tuple)) else [str(i) for i in trace]
+        trajectory = normalize_trace(trace)
         
         gold_landmarks = task.get("landmarks", [])
-        if gold_landmarks:
+        if gold_landmarks is not None :
             metrics["landmarks"] = evaluate_checkpoints(gold_landmarks, trajectory)
 
     # Calculate score as average of output_match and landmarks
     score = (metrics["output_match"] + metrics["landmarks"]) / 2
-    return score
+    pred =  dspy.Prediction(
+        score=score,
+        score_dict=metrics
+    )
+
+    print(f"Task {task.get("instance_id", '')} metrics with feedback : {pred}" )
+
+
+    return pred
 
 
 def super_score_with_feedback(example, prediction, trace=None):
-    """Scoring function with feedback that returns dspy.Prediction(score=score, feedback=feedback_text)"""
+    """Simple scoring function with feedback that returns average of output_match and landmarks"""
     final_submission = prediction.result if hasattr(prediction, 'result') else prediction
+    print(prediction)
     
     metrics = {
         "submitted": 0,
@@ -214,19 +200,22 @@ def super_score_with_feedback(example, prediction, trace=None):
             submission = final_submission.structured_output
 
     gold_answer = json.loads(task["answer"]) if task.get("answer") else None
-    if gold_answer:
+
+    print("Gold : ", gold_answer)
+    print("Prediction : ", submission)
+    if gold_answer is not None:
         metrics["output_match"] = evaluate(gold=gold_answer, predicted=submission)
 
     # Handle trace and landmarks
     if hasattr(prediction, 'trajectory'):
         trace = prediction.trajectory
+        print("has_trajectory")
     
     if trace is not None:
-        print("yyLL",trace)
-        trajectory = [str(i[1]) for i in trace] if isinstance(trace[0], (list, tuple)) else [str(i) for i in trace]
+        trajectory = normalize_trace(trace)
         
         gold_landmarks = task.get("landmarks", [])
-        if gold_landmarks:
+        if gold_landmarks is not None :
             metrics["landmarks"] = evaluate_checkpoints(gold_landmarks, trajectory)
 
     # Calculate score as average of output_match and landmarks
@@ -236,7 +225,14 @@ def super_score_with_feedback(example, prediction, trace=None):
     feedback_text = str(metrics)
     
     
-    return dspy.Prediction(
+    pred =  dspy.Prediction(
         score=score,
+        score_dict=metrics,
         feedback=feedback_text,
     )
+
+
+    print(f"Task {task.get("instance_id", '')} metrics with feedback : {pred}" )
+
+
+    return pred
