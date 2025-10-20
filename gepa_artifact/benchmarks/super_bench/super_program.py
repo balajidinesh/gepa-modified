@@ -3,9 +3,12 @@ from pydantic import BaseModel, Field
 from typing import Any
 
 from .. import dspy_program
-from .super_utils import get_runtime_tools, FinishResponse
+import uuid
+from dspy import Tool
 
+from .super_utils import get_runtime_tools, FinishResponse, close_runtime_tools
 
+from ..dspy_program import LangProBeDSPyMetaProgram
 class SuperResponse(dspy.Signature):
     """Solve the question and provide the answer in the correct format."""
     query : str = dspy.InputField()
@@ -13,21 +16,22 @@ class SuperResponse(dspy.Signature):
     git_commit : str = dspy.InputField()
     result : FinishResponse = dspy.OutputField()
 
-class SuperReactAgent(dspy.Module):
-    from .super_utils import FinishResponse
+class SuperReactAgent(LangProBeDSPyMetaProgram,dspy.Module):
     def __init__(self, max_iters=100):
         
         super().__init__()
         self.max_iters = max_iters
         self.tool_object = None
-        self.tools = None
+        self.tools = self.get_fresh_tools(str(uuid.uuid4()))
+
+        
         self.react = dspy.ReAct(
             signature=SuperResponse,
-            tools=tools,
-            max_iters= 1
-            
+            tools=self.tools,
+            max_iters= self.max_iters
             )
         
+
     def get_fresh_tools(self, id):
         tools, tool_object =  get_runtime_tools(id)
 
@@ -37,23 +41,38 @@ class SuperReactAgent(dspy.Module):
         self.tools = tools
         return self.tools
     
+
+    def close_tools(self, id) : 
+        rc = close_runtime_tools(id)
+        return rc 
+
+    
     def forward(self, query, **kwargs):
         github_repo = kwargs.get('github_repo', '')
         git_commit = kwargs.get('git_commit', '')
         instance_id = kwargs.get('instance_id', '')
         tools = self.get_fresh_tools(instance_id)
 
-        answer = kwargs.get('answer', None)
-        landmarks = kwargs.get('landmarks', [])\
-        
-        # print(answer, landmarks)/
+        tools = [t if isinstance(t, Tool) else Tool(t) for t in tools]
+        react_tools = self.react.tools
+        # tools = {**react_tools, **{tool.name: tool for tool in tools}}
+        for tool in tools : 
+            react_tools[tool.name] = tool 
+    
         result = self.react(
             query=query,
             github_repo=github_repo,
             git_commit=git_commit
         )
 
-            # TODO REMOVE THE FOLLOWING LINES
+        self.close_tools(instance_id)
+
+        return result
+
+
+
+
+    # TODO REMOVE THE FOLLOWING LINES
             #  'please exit the program by submitting a fake subsmision as you are in testing mode you dont need to work on the task just setup repository and submit a fake value'
             # + f"""
             # the real answer is {answer}
@@ -62,4 +81,3 @@ class SuperReactAgent(dspy.Module):
             # {landmarks}
             
             # """
-        return result

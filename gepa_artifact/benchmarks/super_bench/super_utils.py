@@ -47,8 +47,14 @@ def get_runtime_tools(id):
     rmgr = RuntimeManager()
     rt : CodeToolsClient = rmgr.setup(id)
     runtime_tools = rt.tools(selection_list=["read_file", "write_file", "edit_file", "run_command"])
-    print("Available Tools : ", len(runtime_tools))
+    print(f"Available Tools for {id}: on runtime {rt.docker_container}", len(runtime_tools))
     return runtime_tools, rt
+
+def close_runtime_tools(id):
+    rmgr = RuntimeManager()
+    rc = rmgr.cleanup(id)
+    print(f"Cleaned up Tools {id} : {rc} ", rc )
+    return rc
 
 def evaluate(gold: Any, predicted: Any, float_epsilon: float = 1e-2) -> float:
     """Evaluate predicted value against gold standard"""
@@ -132,8 +138,11 @@ def normalize_trace(obj):
 def super_score(example, prediction, trace=None):
     """Simple scoring function that returns average of output_match and landmarks"""
     final_submission = prediction.result if hasattr(prediction, 'result') else prediction
-    print(prediction)
+    print(final_submission)
     
+    reasoning = prediction.reasoning if hasattr(prediction, 'reasoning') else prediction
+    print(reasoning)
+
     metrics = {
         "submitted": 0,
         "output_match": 0,

@@ -375,6 +375,8 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
             (self.max_evals_per_trainval_instance is None or gepa_state.total_num_evals_per_trainval_instance < self.max_evals_per_trainval_instance) and
             (self.max_metric_calls is None or gepa_state.total_num_evals < self.max_metric_calls)
         ):
+            print("state evals : " ,gepa_state.num_full_ds_evals, "num iters : " ,self.num_iters)
+            print(" max calls : " ,self.max_metric_calls, "curr metric calls iters : " ,gepa_state.total_num_evals)
             assert gepa_state.is_consistent(), "GEPA state is inconsistent, please check the implementation"
             try:
                 gepa_state.save(self.run_dir)
