@@ -7,7 +7,7 @@ from typing import Callable, List, Type
 dataset_size = {"full": None, "lite": 500, "tiny": 200, "test": 50}
 
 class Benchmark(ABC):
-    def __init__(self, dataset_mode="lite"):
+    def __init__(self, dataset_mode="lite",with_gold=False):
         # dataset for training and validation
         self.dataset = None
         # dataset for the actual benchmarking
@@ -15,7 +15,7 @@ class Benchmark(ABC):
         self.test_set = None
         self.val_set = None
 
-        self.init_dataset()
+        self.init_dataset(with_gold)
         assert self.dataset is not None, "Dataset not initialized"
         self.max_testset_size = dataset_size[dataset_mode]
 

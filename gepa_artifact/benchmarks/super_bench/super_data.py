@@ -4,7 +4,7 @@ from datasets import load_dataset
 
 
 class SuperBenchmark(Benchmark):
-    def init_dataset(self):
+    def init_dataset(self, with_gold=False):
         # Hardcoded instance ID splits
         train_instance_ids = ['glee','hype','pie-perf','rah-kbqa','safetybench','acqsurvey','dir-gnn','amos','discodisco']
         val_instance_ids = ['quantifying-stereotypes-in-language','mera','textbox','colbert','powerfulpromptft','logme-nlp','amrbart','curriculum_learning','multi3woz']
@@ -20,6 +20,8 @@ class SuperBenchmark(Benchmark):
 
         # Process data and remove unnecessary keys
         keys_to_remove = ['solution_dependencies', 'solution']
+        if with_gold : 
+            keys_to_remove = []
         instances = super_bench.to_dict('records')
 
         # Create examples for all relevant instances
