@@ -4,6 +4,7 @@ import dspy
 import json
 from typing import Dict, Any, Iterable, List, Optional
 
+from .rcb_utils import ROOT_PATH
 
 def read_jsonl(path: str) -> Iterable[Dict[str, Any]]:
     """Yield one JSON object per line from a JSONL file."""
@@ -29,12 +30,16 @@ class RCBenchmark(Benchmark):
         
         all_instance_ids = train_instance_ids + val_instance_ids + test_instance_ids
 
-        rcb = load_tasks(path='gepa_artifact/benchmarks/researchcodebench/researchcodebench.jsonl')
+        data_path = ROOT_PATH + '/' + 'gepa_artifact/benchmarks/researchcodebench/researchcodebench.jsonl'
+
+        rcb = load_tasks(path=data_path)
         
-        rcb['instance_id'] = rcb.pop('task_id')
+        for record in rcb:
+            record['instance_id'] = record.pop('task_id')
+
 
         # Process data and remove unnecessary keys
-        keys_to_remove = ['gold_snippet', 'unmasked_file']
+        keys_to_remove = ['unmasked_file']
         if with_gold : 
             keys_to_remove = []
 
@@ -48,7 +53,7 @@ class RCBenchmark(Benchmark):
 
                 # Use single input field pattern like other benchmarks
                 # ex = dspy.Example(**instance).with_inputs("query",'git_commit','github_repo','instance_id','landmarks','answer')
-                ex = dspy.Example(**instance).with_inputs("instance_id","paper_id","snippet_name","masked_file","context_files","paper",)
+                ex = dspy.Example(**instance).with_inputs("instance_id","paper_id","snippet_name","masked_file","context_files","paper")
                 all_examples.append(ex)
 
         # Create splits based on hardcoded instance IDs

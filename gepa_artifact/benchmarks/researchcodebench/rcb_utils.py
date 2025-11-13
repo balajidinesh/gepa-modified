@@ -4,9 +4,13 @@ import tempfile
 import subprocess
 from typing import Dict, Any, Tuple
 import re
+import dspy
+
 
 from pathlib import Path
 
+
+ROOT_PATH = '..'
 
 REQUIRED_INSTANCE_FIELDS = [
     "problem_root_rel",
@@ -21,7 +25,29 @@ def _ensure_required_fields(instance: Dict[str, Any], extra=[]) -> None:
         if key not in instance:
             raise KeyError(f"Missing required field in instance: {key}")
 
+def _extract_last_python_block(text: str) -> str:
+    """
+    Extract the last fenced python block if present; otherwise the last generic code block.
+    Preserve all original indentation/spaces.
+    """
+    if not text:
+        return ""
 
+    # 1) Try explicit ```python fenced blocks
+    py_pattern = re.compile(r"```python\s*\n(.*?)\n```", re.DOTALL | re.IGNORECASE)
+    py_blocks = py_pattern.findall(text)
+    if py_blocks:
+        code = py_blocks[-1]
+        return code if code.endswith("\n") else code + "\n"
+
+    # 2) Fallback to any ``` code block
+    any_pattern = re.compile(r"```\s*\n(.*?)\n```", re.DOTALL)
+    any_blocks = any_pattern.findall(text)
+    if any_blocks:
+        code = any_blocks[-1]
+        return code if code.endswith("\n") else code + "\n"
+
+    return ""
 
 
 def _prediction_to_lines(prediction_block: str):
@@ -116,7 +142,9 @@ def rcb_score(example, prediction, trace=None):
     """
 
     prediction_block = prediction.result if hasattr(prediction, 'result') else prediction
-    instance = example 
+
+    prediction_block = _extract_last_python_block(prediction_block)
+    instance = example
     docker_image = "researchcodebench:latest"
 
     _ensure_required_fields(instance)
@@ -126,7 +154,7 @@ def rcb_score(example, prediction, trace=None):
     test_entry_point = instance.get("test_file_path",None)
 
     
-    base_path =  Path('gepa_artifact/benchmarks/researchcodebench/')
+    base_path =  Path(ROOT_PATH) / Path('gepa_artifact/benchmarks/researchcodebench/')
     problem_root_rel = Path(problem_root_rel)
     problem_root_rel = (base_path / problem_root_rel)
     # Prepare temp workspace
@@ -143,13 +171,17 @@ def rcb_score(example, prediction, trace=None):
         mount_dir=temp_problem_dir,
         test_entry_point=test_entry_point,
         docker_image=docker_image,
-        timeout_seconds=60*2,
+        timeout_seconds=60*5,
     )
 
     # Pass criteria: exit_code==0 and no obvious error keywords in stdout/stderr
     error_keywords = ("Error:", "Exception:", "Traceback", "failed")
     has_error_kw = any(k in (stdout or "") for k in error_keywords) or any(k in (stderr or "") for k in error_keywords)
     passed = bool(success and exit_code == 0 and not has_error_kw)
+
+    pred = dspy.Prediction(
+        score=float(passed)
+    )
 
     return float(passed)
 
@@ -169,6 +201,8 @@ def rcb_score_with_feedback(example, prediction, trace=None):
     """
     
     prediction_block = prediction.result if hasattr(prediction, 'result') else prediction
+
+    prediction_block = _extract_last_python_block(prediction_block)
     instance = example 
     docker_image = "researchcodebench:latest"
 
@@ -178,7 +212,7 @@ def rcb_score_with_feedback(example, prediction, trace=None):
     annotated_rel_path = instance.get("annotated_file_path",None)
     test_entry_point = instance.get("test_file_path",None)
 
-    base_path =  Path('gepa_artifact/benchmarks/researchcodebench/')
+    base_path =  Path(ROOT_PATH) / Path('gepa_artifact/benchmarks/researchcodebench/')
     problem_root_rel = Path(problem_root_rel)
     problem_root_rel = (base_path / problem_root_rel)
     # Prepare temp workspace
@@ -195,7 +229,7 @@ def rcb_score_with_feedback(example, prediction, trace=None):
         mount_dir=temp_problem_dir,
         test_entry_point=test_entry_point,
         docker_image=docker_image,
-        timeout_seconds=60*2,
+        timeout_seconds=60*5,
     )
 
     # Pass criteria: exit_code==0 and no obvious error keywords in stdout/stderr
@@ -203,14 +237,21 @@ def rcb_score_with_feedback(example, prediction, trace=None):
     has_error_kw = any(k in (stdout or "") for k in error_keywords) or any(k in (stderr or "") for k in error_keywords)
     passed = bool(success and exit_code == 0 and not has_error_kw)
 
-    return float(passed),{
-        "task_id" : instance['task_id'],
+
+    pred = dspy.Prediction(
+        score=float(passed),
+        feedback=str({
+        "task_id" : instance['instance_id'],
         "success": success,
         "exit_code": exit_code,
         "stdout": stdout,
         "stderr": stderr,
         "passed": passed,
-        }
+        }),
+    )
+
+
+    return pred
 
 
 def rcb_score_with_gold_feedback(example, prediction, trace=None):
@@ -227,6 +268,7 @@ def rcb_score_with_gold_feedback(example, prediction, trace=None):
     """
     
     prediction_block = prediction.result if hasattr(prediction, 'result') else prediction
+    prediction_block = _extract_last_python_block(prediction_block)
     instance = example 
     docker_image = "researchcodebench:latest"
 
@@ -237,7 +279,7 @@ def rcb_score_with_gold_feedback(example, prediction, trace=None):
     test_entry_point = instance.get("test_file_path",None)
 
     
-    base_path =  Path('gepa_artifact/benchmarks/researchcodebench/')
+    base_path =  Path(ROOT_PATH) / Path('gepa_artifact/benchmarks/researchcodebench/')
     problem_root_rel = Path(problem_root_rel)
     problem_root_rel = (base_path / problem_root_rel)
     # Prepare temp workspace
@@ -254,7 +296,7 @@ def rcb_score_with_gold_feedback(example, prediction, trace=None):
         mount_dir=temp_problem_dir,
         test_entry_point=test_entry_point,
         docker_image=docker_image,
-        timeout_seconds=60*2,
+        timeout_seconds=60*5,
     )
 
     gold_snippet = instance.get('gold_snippet', None)
@@ -264,13 +306,17 @@ def rcb_score_with_gold_feedback(example, prediction, trace=None):
     has_error_kw = any(k in (stdout or "") for k in error_keywords) or any(k in (stderr or "") for k in error_keywords)
     passed = bool(success and exit_code == 0 and not has_error_kw)
 
-    return float(passed),{
-        "task_id" : instance['task_id'],
+    pred = dspy.Prediction(
+        score=float(passed),
+        feedback=str({
+        "task_id" : instance['instance_id'],
         "success": success,
         "exit_code": exit_code,
         "stdout": stdout,
         "stderr": stderr,
         "passed": passed,
-        "gold_snippet" : gold_snippet
-        }
+        }),
+    )
+
+    return pred
 
