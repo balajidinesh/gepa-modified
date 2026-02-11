@@ -7,7 +7,7 @@ from typing import Callable, List, Type
 dataset_size = {"full": None, "lite": 500, "tiny": 200, "test": 50}
 
 class Benchmark(ABC):
-    def __init__(self, dataset_mode="lite",with_gold=False):
+    def __init__(self, dataset_mode="lite",*args, **kwargs):
         # dataset for training and validation
         self.dataset = None
         # dataset for the actual benchmarking
@@ -15,7 +15,7 @@ class Benchmark(ABC):
         self.test_set = None
         self.val_set = None
 
-        self.init_dataset(with_gold)
+        self.init_dataset(*args, **kwargs)
         assert self.dataset is not None, "Dataset not initialized"
         self.max_testset_size = dataset_size[dataset_mode]
 
@@ -36,7 +36,7 @@ class Benchmark(ABC):
         assert self.val_set is not None, "Val set not initialized"
 
     @abstractmethod
-    def init_dataset(self) -> None:
+    def init_dataset(self,*args, **kwargs) -> None:
         """
         Initializes the dataset for the benchmark, and sets it to self.dataset.
         Each element in the dataset should be an instance of dspy.Example.

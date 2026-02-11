@@ -222,7 +222,7 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
 
         return curr_prog_id
     
-    def run_full_eval_add_new_program_to_gepa_tree(
+    def C(
         self,
         new_program: dspy.Module,
         gepa_state: GEPAState,

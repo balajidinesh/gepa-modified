@@ -215,9 +215,6 @@ __marimo__/
 
 
 
-super_bench/oldruns
+runs/*
 
-super_bench/runs/super*
-
-
-*/benchmarks/researchcodebench/pset/
+*tool_runs/sab/*

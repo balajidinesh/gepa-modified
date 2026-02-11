@@ -53,7 +53,7 @@ dependencies = [
     "lark",
     "sympy",
     "levenshtein",
-    "aicodetools>=0.1.7",
+    "aicodetools>=2.0.58",
     "papermill>=2.6.0",
 ]
 
