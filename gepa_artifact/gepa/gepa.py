@@ -54,13 +54,14 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         use_merge=False,
         max_merge_invocations=5,
         num_dspy_examples_per_gepa_step=3,
+        max_iterations=30,
         max_metric_calls=None,
         set_for_merge_minibatch='train',  # 'train', 'val', or 'both'
         track_scores_on: Literal['val', 'train_val'] = 'train_val',
         add_format_failure_as_feedback: bool=False,
     ):
         # Exactly one of max_metric_calls, max_evals_per_trainval_instance or num_iters should be set
-        assert (max_metric_calls is not None) + (max_evals_per_trainval_instance is not None) + (num_iters is not None) == 1, "Exactly one of max_metric_calls, max_evals_per_trainval_instance or num_iters should be set. You set max_metric_calls={}, max_evals_per_trainval_instance={}, num_iters={}".format(
+        assert (max_iterations is not None) + (max_metric_calls is not None) + (max_evals_per_trainval_instance is not None) + (num_iters is not None) == 1, "Exactly one of max_iterations, max_metric_calls, max_evals_per_trainval_instance or num_iters should be set. You set max_metric_calls={}, max_evals_per_trainval_instance={}, num_iters={}".format(
             max_metric_calls, max_evals_per_trainval_instance, num_iters
         )   
 
@@ -82,6 +83,7 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         self.num_iters = num_iters
         self.max_evals_per_trainval_instance = max_evals_per_trainval_instance
         self.max_metric_calls = max_metric_calls
+        self.max_iterations = max_iterations
 
         self.seed = seed
         self.skip_perfect_score = skip_perfect_score
@@ -371,12 +373,14 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
 
         # Line 6: while budget B not exhausted do
         while (
+            (self.max_iterations is None or gepa_state.i < self.max_iterations) and 
             (self.num_iters is None or gepa_state.num_full_ds_evals < self.num_iters) and
             (self.max_evals_per_trainval_instance is None or gepa_state.total_num_evals_per_trainval_instance < self.max_evals_per_trainval_instance) and
             (self.max_metric_calls is None or gepa_state.total_num_evals < self.max_metric_calls)
         ):
             print("state evals : " ,gepa_state.num_full_ds_evals, "num iters : " ,self.num_iters)
             print(" max calls : " ,self.max_metric_calls, "curr metric calls iters : " ,gepa_state.total_num_evals)
+            print("iter : " ,gepa_state.i, "max iters : " ,self.max_iterations)
             assert gepa_state.is_consistent(), "GEPA state is inconsistent, please check the implementation"
             try:
                 gepa_state.save(self.run_dir)

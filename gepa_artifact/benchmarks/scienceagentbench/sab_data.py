@@ -58,7 +58,8 @@ class SABenchmark(Benchmark):
 
 
                 instance['add_inst'] = '''1. The dataset path: /benchmark/datasets/*
-2. use The output path must start with absoulute path :  /pred_results/* '''
+2. use The output path must start with absoulute path :  /pred_results/* 
+3. You have to submit the .py python file path for the task'''
  
                 # Use single input field pattern like other benchmarks
                 # ex = dspy.Example(**instance).with_inputs("query",'git_commit','github_repo','instance_id','landmarks','answer')

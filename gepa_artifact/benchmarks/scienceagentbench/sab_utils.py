@@ -187,7 +187,7 @@ def sab_score(example, prediction, trace=None):
     """Simple scoring function that returns average of output_match and landmarks"""
 
     final_code = prediction.generated_code if hasattr(prediction, 'generated_code') else prediction
-    print(final_code)
+    print("submission :", final_code.replace("\n", "\\n")[:30])
 
     task = example
     submission = final_code 
@@ -249,12 +249,17 @@ def sab_score(example, prediction, trace=None):
     success_rate = score.get("success_rate", 0)
     codebert_score = score.get("codebert_score", 0.0)
 
+    score['abs_code_path_submitted'] = prediction.final_path
+
     print(
+        f"{'-'*20}"
         f"Task {task.instance_id} - "
         f"submitted={submitted}, "
         f"valid_program={valid_program}, "
         f"success_rate={success_rate}, "
         f"codebert_score={codebert_score}"
+        f"abs_code_path_submitted={prediction.final_path}"
+        f"{'-'*20}"
     )
 
     metrics = score 
@@ -270,12 +275,10 @@ def sab_score(example, prediction, trace=None):
     return pred
 
 
-
-
 def sab_score_with_feedback(example, prediction, trace=None):
 
     final_code = prediction.generated_code if hasattr(prediction, 'generated_code') else prediction
-    print(final_code)
+    print("submission :", final_code.replace("\n", "\\n")[:30])
     
     task = example
     submission = final_code 
@@ -335,13 +338,17 @@ def sab_score_with_feedback(example, prediction, trace=None):
     valid_program = score.get("valid_program", 0)
     success_rate = score.get("success_rate", 0)
     codebert_score = score.get("codebert_score", 0.0)
+    score['abs_code_path_submitted'] = prediction.final_path
 
     print(
+        f"{'-'*20}"
         f"Task {task.instance_id} - "
         f"submitted={submitted}, "
         f"valid_program={valid_program}, "
         f"success_rate={success_rate}, "
         f"codebert_score={codebert_score}"
+        f"abs_code_path_submitted={prediction.final_path}"
+        f"{'-'*20}"
     )
 
     metrics = score
@@ -366,7 +373,7 @@ def sab_score_with_feedback(example, prediction, trace=None):
 def sab_score_with_gold_feedback(example, prediction, trace=None):
 
     final_code = prediction.generated_code if hasattr(prediction, 'generated_code') else prediction
-    print(final_code)
+    print("submission :", final_code.replace("\n", "\\n")[:30])
     
     task = example
     submission = final_code 
@@ -427,12 +434,17 @@ def sab_score_with_gold_feedback(example, prediction, trace=None):
     success_rate = score.get("success_rate", 0)
     codebert_score = score.get("codebert_score", 0.0)
 
+    score['abs_code_path_submitted'] = prediction.final_path
+
     print(
+        f"{'-'*20}"
         f"Task {task.instance_id} - "
         f"submitted={submitted}, "
         f"valid_program={valid_program}, "
         f"success_rate={success_rate}, "
         f"codebert_score={codebert_score}"
+        f"abs_code_path_submitted={prediction.final_path}"
+        f"{'-'*20}"
     )
 
     metrics = score
@@ -447,64 +459,6 @@ def sab_score_with_gold_feedback(example, prediction, trace=None):
         score_dict=score,
         feedback=feedback_txt
     )
-
-    print(f"Task {task.get("instance_id", '')} metrics with feedback : {pred}" )
-
-
-    return pred
-
-    """Simple scoring function with feedback that returns average of output_match and landmarks"""
-    final_submission = prediction.result if hasattr(prediction, 'result') else prediction
-    print(prediction)
-    
-    metrics = {
-        "submitted": 0,
-        "output_match": 0,
-        "landmarks": 0
-    }
-    
-    task = example
-    submission = None
-    
-    if final_submission:
-        if hasattr(final_submission, 'structured_output') and final_submission.structured_output:
-            metrics["submitted"] = 1
-            submission = final_submission.structured_output
-
-    gold_answer = json.loads(task["answer"]) if task.get("answer") else None
-
-    print("Gold : ", gold_answer)
-    print("Prediction : ", submission)
-    if gold_answer is not None:
-        metrics["output_match"] = evaluate(gold=gold_answer, predicted=submission)
-
-    # Handle trace and landmarks
-    if hasattr(prediction, 'trajectory'):
-        trace = prediction.trajectory
-        print("has_trajectory")
-    
-    if trace is not None:
-        trajectory = normalize_trace(trace)
-        
-        gold_landmarks = task.get("landmarks", [])
-        if gold_landmarks is not None :
-            metrics["landmarks"] = evaluate_checkpoints(gold_landmarks, trajectory)
-
-    # Calculate score as average of output_match and landmarks
-    score = (metrics["output_match"] + metrics["landmarks"]) / 2
-    
-
-    solution = task['solution']
-    
-    feedback_txt = f"the expert solution for the problem : \n\n{solution} {'-'*10} \n\n current metrics : {str(metrics)}"
-    
-    
-    pred =  dspy.Prediction(
-        score=score,
-        score_dict=metrics,
-        feedback=feedback_txt,
-    )
-
 
     print(f"Task {task.get("instance_id", '')} metrics with feedback : {pred}" )
 
