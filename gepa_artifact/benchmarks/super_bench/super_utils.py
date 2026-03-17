@@ -183,7 +183,7 @@ def super_score(example, prediction, trace=None):
         score_dict=metrics
     )
 
-    print(f"Task {task.get("instance_id", '')} metrics with feedback : {pred}" )
+    print(f"Task {task.get('instance_id', '')} metrics with feedback : {pred}" )
 
 
     return pred
@@ -241,7 +241,7 @@ def super_score_with_feedback(example, prediction, trace=None):
     )
 
 
-    print(f"Task {task.get("instance_id", '')} metrics with feedback : {pred}" )
+    print(f"Task {task.get('instance_id', '')} metrics with feedback : {pred}" )
 
 
     return pred
@@ -303,7 +303,7 @@ def super_score_with_gold_feedback(example, prediction, trace=None):
     )
 
 
-    print(f"Task {task.get("instance_id", '')} metrics with feedback : {pred}" )
+    print(f"Task {task.get('instance_id', '')} metrics with feedback : {pred}" )
 
 
     return pred

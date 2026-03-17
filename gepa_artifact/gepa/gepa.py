@@ -224,7 +224,7 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
 
         return curr_prog_id
     
-    def C(
+    def run_full_eval_add_new_program_to_gepa_tree(
         self,
         new_program: dspy.Module,
         gepa_state: GEPAState,
@@ -310,7 +310,7 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
             return_outputs=True,
             failure_score=self.failure_score,
             provide_traceback=True,
-            max_errors=len(trainset) * 100  # Allow for many errors in the training set
+            max_errors=len(trainset) * 1  # Allow for many errors in the training set
         )
 
         self.train_val_size = len(trainset)
@@ -327,7 +327,7 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
             return_outputs=True,
             failure_score=self.failure_score,
             provide_traceback=True,
-            max_errors=len(valset) * 100  # Allow for many errors in the validation set
+            max_errors=len(valset) * 1  # Allow for many errors in the validation set
         )
 
         # Line 1: Split Dtrain into Dfeedback, Dpareto, s.t. |Dpareto| = npareto
@@ -451,7 +451,7 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
                         subsample_evaluator_args['devset'] = mini_devset
                         subsample_evaluator_args['return_outputs'] = True
                         subsample_evaluator_args['return_all_scores'] = True
-                        subsample_evaluator_args['max_errors'] = len(subsample_ids) * 100
+                        subsample_evaluator_args['max_errors'] = len(subsample_ids) * 1
                         subsample_evaluator = dspy.Evaluate(**subsample_evaluator_args)
 
                         new_program_subsample_scores = subsample_evaluator(new_program)[2]
@@ -564,6 +564,7 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
                 #     instruction_propose_module.set_lm(self.teacher_lm)
                 try:
                     output = instruction_propose_module.compile()
+                    output['predictor_to_update_id'] = predictor_to_update_id
                     with open(os.path.join(self.run_dir, "instruction_proposer_inpouts.jsonl"), 'a') as f:
                         f.write(json.dumps(output, default=lambda x: {**x}) + "\n")
                     new_instruction = output['new_instruction']
@@ -590,7 +591,7 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
                 subsample_evaluator_args['devset'] = [trainset[i] for i in subsample_ids]
                 subsample_evaluator_args['return_outputs'] = True
                 subsample_evaluator_args['return_all_scores'] = True
-                subsample_evaluator_args['max_errors'] = len(subsample_ids) * 100
+                subsample_evaluator_args['max_errors'] = len(subsample_ids) * 1
                 # Line 13: σ, σ' ← avg score on M (before, after)
                 subsample_evaluator = dspy.Evaluate(**subsample_evaluator_args)
                 new_subsample_scores = subsample_evaluator(new_program)[2]

@@ -66,6 +66,7 @@ class SuperReactAgent(LangProBeDSPyMetaProgram,dspy.Module):
         )
 
         self.close_tools(instance_id)
+        # self.close_tools(uid created)
 
         return result
 

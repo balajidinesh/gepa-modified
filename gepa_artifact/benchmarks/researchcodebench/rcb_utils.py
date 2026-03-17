@@ -10,7 +10,7 @@ import dspy
 from pathlib import Path
 
 
-ROOT_PATH = '..'
+ROOT_PATH = ''
 
 REQUIRED_INSTANCE_FIELDS = [
     "problem_root_rel",
@@ -122,7 +122,7 @@ def _run_docker_test(mount_dir: str, test_entry_point: str, docker_image: str, t
         success = proc.returncode == 0
         return success, proc.returncode, proc.stdout, proc.stderr
     except subprocess.TimeoutExpired as e:
-        return False, -1, e.stdout or "", (e.stderr or "") + "\nTimeoutExpired"
+        return False, -1, e.stdout or "", (str(e.stderr or "") + str("\nTimeoutExpired"))
     except FileNotFoundError as e:
         # Docker not found on host
         return False, -1, "", f"Docker not found: {e}"

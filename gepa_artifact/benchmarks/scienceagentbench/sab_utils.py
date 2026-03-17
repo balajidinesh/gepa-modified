@@ -111,7 +111,7 @@ def read_file_from_container(client, path: str):
 
     container_name = client.container_name
     if not container_name:
-        return False
+        return 'EVAL FUNC ERROR'
     
     if not path.lower().endswith(".py"):
         return 'NOT A PYTHON PROGROM, ENSURE YOU SUBMIT THE ABSOLUTE PATH OF THE PYTHON FILE .py'
@@ -120,8 +120,9 @@ def read_file_from_container(client, path: str):
 
     # 1️⃣ Absolute path → check only this
     if path.startswith("/"):
-        return _check_and_read(container_name, path)
-
+        content = _check_and_read(container_name, path)
+        if content:
+            return content
     # 2️⃣ Home (~) path
     if path.startswith("~"):
         home_path = path.replace("~", "/root", 1)
@@ -187,11 +188,15 @@ def sab_score(example, prediction, trace=None):
     """Simple scoring function that returns average of output_match and landmarks"""
 
     final_code = prediction.generated_code if hasattr(prediction, 'generated_code') else prediction
-    print("submission :", final_code.replace("\n", "\\n")[:30])
+    
+    submitted =  True if final_code else False
+    try : 
+        print("submission :", final_code.replace("\n", "\\n")[:30])
+    except Exception as e :
+        final_code = str(final_code)
 
     task = example
     submission = final_code 
-    submitted =  True if final_code else False
 
     r_kwargs = {
         "instance_id": task.instance_id,
@@ -204,7 +209,7 @@ def sab_score(example, prediction, trace=None):
         "predicted_code": submission or "",
     }
 
-    print(r_kwargs)
+    # print(r_kwargs)
 
 
     try:
@@ -278,11 +283,15 @@ def sab_score(example, prediction, trace=None):
 def sab_score_with_feedback(example, prediction, trace=None):
 
     final_code = prediction.generated_code if hasattr(prediction, 'generated_code') else prediction
-    print("submission :", final_code.replace("\n", "\\n")[:30])
+    submitted =  True if final_code else False
+    try : 
+        print("submission :", final_code.replace("\n", "\\n")[:30])
+    except Exception as e : 
+        final_code = str(final_code)
     
     task = example
     submission = final_code 
-    submitted =  True if final_code else False
+    
 
     r_kwargs = {
         "instance_id": task.instance_id,

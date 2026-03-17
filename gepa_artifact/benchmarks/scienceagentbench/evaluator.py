@@ -75,6 +75,7 @@ def evaluate_instance( # Keys are explicitly passed; no CSV reads.
         "-e", f"EVAL_SCRIPT_NAME={eval_script_name}",
     ]
 
+    timeout_sec = 600
     # TODO check potential api key/ env vars leaks in logs, cause of above stringified command
 
     # Forward relevant LLM/LiteLLM provider credentials if present (model-agnostic)
@@ -84,7 +85,32 @@ def evaluate_instance( # Keys are explicitly passed; no CSV reads.
     cmd = _append_envs(cmd, default_envs)
     cmd += ["sab-eval:latest", "python", "/app/eval_runner.py"]
     try:
-        proc = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        proc = subprocess.run(
+        ["timeout", "-k", "10", str(timeout_sec)] + cmd,
+        check=True,
+        capture_output=True,
+        text=True,
+        timeout=timeout_sec + 20
+    )
+    except subprocess.TimeoutExpired as e:
+        print(f"Evaluation timed out after {timeout_sec}s")
+        print("Partial STDOUT:", e.stdout)
+        print("Partial STDERR:", e.stderr)
+
+        try:
+            tmpdir_pred.cleanup()
+        except Exception:
+            pass
+
+        return EvalMetrics(
+            instance_id=instance_id,
+            valid_program=0,
+            success_rate=0,
+            codebert_score=0.0,
+            log_info="timeout",
+            run_id=run_id,
+            result_path="",
+        ), "timeout"
     except subprocess.CalledProcessError as e:
         print("Command failed")
         print("Return code:", e.returncode)

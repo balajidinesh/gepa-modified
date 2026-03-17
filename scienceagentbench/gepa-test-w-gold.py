@@ -61,7 +61,6 @@ class SlidingWindowLimiter:
                 print(f"⚠️ Throttling: sleeping {sleep_time:.2f}s (req={req_count}, tokens={token_count})")
                 time.sleep(sleep_time)
 
-
 class DelayAndLogCallback(BaseCallback):
     """DSPy callback using sliding window limiter."""
 
@@ -212,7 +211,9 @@ evaluate = dspy.Evaluate(
     max_errors=100 * len(bench.test_set),
     provide_traceback = True,
     failure_score=0,
-    save_as_json='optimized_rcb.json',
+    return_all_scores=True,
+    return_outputs=True,
+    save_as_json=f'{runs_dir}/optimized_rcb.json',
     save_as_csv='optimized_rcb.csv'
 )
 # latest_program = best_progs[-1]

@@ -15,6 +15,11 @@ import dspy
 from dspy.utils.callback import BaseCallback
 
 
+from extra_utils.cost_tracker import init_tracker, get_tracker
+import dspy
+
+tracker = init_tracker(log_dir="scienceagentbench/cost-sab-train", name="train-w-g")
+
 class SlidingWindowLimiter:
     """Rate limiter that enforces both request and token limits per rolling minute."""
 
@@ -61,7 +66,6 @@ class SlidingWindowLimiter:
                 sleep_time = max(0.01, 60 - (now - oldest_time))
                 print(f"⚠️ Throttling: sleeping {sleep_time:.2f}s (req={req_count}, tokens={token_count})")
                 time.sleep(sleep_time)
-
 
 class DelayAndLogCallback(BaseCallback):
     """DSPy callback using sliding window limiter."""
@@ -117,17 +121,17 @@ print(program)
 
 
 import dspy
-evaluate_test = dspy.Evaluate(
-    devset=bench.test_set,
-    metric=sab_metas[0].metric,
-    num_threads=8,
-    display_table=True,
-    display_progress=True,
-    max_errors=100 * len(bench.test_set),
-    provide_traceback = True,
-    failure_score=0,
-    save_as_json='run_trained_on_gold.json'
-)
+# evaluate_test = dspy.Evaluate(
+#     devset=bench.test_set,
+#     metric=sab_metas[0].metric,
+#     num_threads=8,
+#     display_table=True,
+#     display_progress=True,
+#     max_errors=100 * len(bench.test_set),
+#     provide_traceback = True,
+#     failure_score=0,
+#     save_as_json='run_trained_on_gold.json'
+# )
 
 
 # base_score = evaluate(program)
@@ -140,13 +144,10 @@ from gepa_artifact.utils.capture_stream_logger import Logger
 import time
 
 
-runs_dir = os.path.join(os.getcwd(), "runs", 'sab-trained-with-gold')
+runs_dir = os.path.join(os.getcwd(), 'scienceagentbench' , "runs", 'sab-train-with-gold')
 os.makedirs(runs_dir, exist_ok=True)
 
 gepa_logger = Logger(os.path.join(runs_dir, "run_log.txt"))
-
-
-gepa_logger.log("TEST LINE")
 
 
 if sab_metas[0].feedback_fn_maps is None or sab_metas[0].feedback_fn_maps[0] is None:
@@ -170,8 +171,8 @@ optimizer = GEPA(
     teacher_lm = tlm,
     set_for_merge_minibatch='val', 
     track_scores_on='val',
-    max_iterations=30,
-    num_dspy_examples_per_gepa_step=5,
+    max_iterations=15,
+    num_dspy_examples_per_gepa_step=7,
     run_dir=runs_dir,
     logger=gepa_logger,
     num_threads=8
@@ -208,10 +209,10 @@ optimized_program=best_prog
 print("best idx :", best_prog_idx)
 # evaluate(optimized_program)
 
-for name, pred in optimized_program.named_predictors():
-    print("================================")
-    print(f"Predictor: {name}")
-    print("================================")
-    print("Prompt:")
-    print(pred.signature.instructions)
-    print("*********************************")
+# for name, pred in optimized_program.named_predictors():
+#     print("================================")
+#     print(f"Predictor: {name}")
+#     print("================================")
+#     print("Prompt:")
+#     print(pred.signature.instructions)
+#     print("*********************************")

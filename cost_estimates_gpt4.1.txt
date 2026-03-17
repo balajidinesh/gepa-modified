@@ -1,0 +1,19 @@
+gpt-4.1 cost estimates via LiteLLM if available
+pricing_source: litellm.model_cost
+input_cost_per_token: 2e-06
+output_cost_per_token: 8e-06
+
+/mnt/c/Users/2825425/work/gepa-research/gepa-modified/super_bench/runs/progress/program_0/optimized_react.json | prompt_toks=377249 | completion_toks=71160 | cost=$1.323778 | counter=litellm
+/mnt/c/Users/2825425/work/gepa-research/gepa-modified/super_bench/runs/progress/program_1/optimized_react.json | prompt_toks=472088 | completion_toks=91168 | cost=$1.673520 | counter=litellm
+/mnt/c/Users/2825425/work/gepa-research/gepa-modified/super_bench/runs/progress/program_2/optimized_react.json | prompt_toks=227696 | completion_toks=62733 | cost=$0.957256 | counter=litellm
+/mnt/c/Users/2825425/work/gepa-research/gepa-modified/super_bench/runs/progress/program_3/optimized_react.json | prompt_toks=351164 | completion_toks=87390 | cost=$1.401448 | counter=litellm
+/mnt/c/Users/2825425/work/gepa-research/gepa-modified/super_bench/runs/progress/program_4/optimized_react.json | prompt_toks=304042 | completion_toks=71035 | cost=$1.176364 | counter=litellm
+/mnt/c/Users/2825425/work/gepa-research/gepa-modified/super_bench/runs/progress/program_5/optimized_react.json | prompt_toks=656627 | completion_toks=110275 | cost=$2.195454 | counter=litellm
+/mnt/c/Users/2825425/work/gepa-research/gepa-modified/super_bench/runs/progress/program_6/optimized_react.json | prompt_toks=566575 | completion_toks=105858 | cost=$1.980014 | counter=litellm
+/mnt/c/Users/2825425/work/gepa-research/gepa-modified/super_bench/runs/progress/program_7/optimized_react.json | prompt_toks=555647 | completion_toks=119268 | cost=$2.065438 | counter=litellm
+/mnt/c/Users/2825425/work/gepa-research/gepa-modified/super_bench/runs/progress/program_8/optimized_react.json | prompt_toks=637769 | completion_toks=100959 | cost=$2.083210 | counter=litellm
+
+TOTALS:
+prompt_toks=4148857
+completion_toks=819846
+cost=$14.856482

@@ -217,4 +217,14 @@ __marimo__/
 
 runs/*
 
-*tool_runs/sab/*
+*tool_runs*
+
+gepa_artifact/benchmarks/*
+
+logs/
+
+rcb/
+
+super_bench/
+
+*runs*
