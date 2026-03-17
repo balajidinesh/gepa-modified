@@ -1,0 +1,4 @@
+{"program_index": 2, "var_idx": 0, "complete_result": {"overall_accuracy": 51.85, "mean_submitted": 0.5185, "mean_output_match": 0.037, "mean_landmarks": 0.0198, "ntotal": 27}}
+{"program_index": 2, "var_idx": 1, "complete_result": {"overall_accuracy": 1.85, "mean_submitted": 0.5556, "mean_output_match": 0.037, "mean_landmarks": 0.0, "ntotal": 27}}
+{"program_index": 2, "var_idx": 2, "complete_result": {"overall_accuracy": 0.93, "mean_submitted": 0.5185, "mean_output_match": 0.0185, "mean_landmarks": 0.0, "ntotal": 27}}
+{"program_index": 2, "var_idx": 3, "complete_result": {"overall_accuracy": 2.16, "mean_submitted": 0.6296, "mean_output_match": 0.0185, "mean_landmarks": 0.0247, "ntotal": 27}}

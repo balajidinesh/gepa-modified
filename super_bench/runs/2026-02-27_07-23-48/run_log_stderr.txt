@@ -1,0 +1,17 @@
+/mnt/c/Users/2825425/work/gepa-research/gepa-modified/.venv/lib/python3.12/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected 10 fields but got 6: Expected `Message` - serialized value may not be as expected [field_name='message', input_value=Message(content='[[ ## ne...: None}, annotations=[]), input_type=Message])
+  PydanticSerializationUnexpectedValue(Expected `StreamingChoices` - serialized value may not be as expected [field_name='choices', input_value=Choices(finish_reason='st..., 'severity': 'safe'}}}), input_type=Choices])
+  return self.__pydantic_serializer__.to_python(
+/mnt/c/Users/2825425/work/gepa-research/gepa-modified/.venv/lib/python3.12/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected 10 fields but got 6: Expected `Message` - serialized value may not be as expected [field_name='message', input_value=Message(content='[[ ## re...: None}, annotations=[]), input_type=Message])
+  PydanticSerializationUnexpectedValue(Expected `StreamingChoices` - serialized value may not be as expected [field_name='choices', input_value=Choices(finish_reason='st..., 'severity': 'safe'}}}), input_type=Choices])
+  return self.__pydantic_serializer__.to_python(
+2026/02/27 07:47:42 INFO dspy.evaluate.evaluate: Average Metric: 0.65 / 1 (65.0%)
+/mnt/c/Users/2825425/work/gepa-research/gepa-modified/.venv/lib/python3.12/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected 10 fields but got 6: Expected `Message` - serialized value may not be as expected [field_name='message', input_value=Message(content='[[ ## ne...: None}, annotations=[]), input_type=Message])
+  PydanticSerializationUnexpectedValue(Expected `StreamingChoices` - serialized value may not be as expected [field_name='choices', input_value=Choices(finish_reason='st..., 'severity': 'safe'}}}), input_type=Choices])
+  return self.__pydantic_serializer__.to_python(
+/mnt/c/Users/2825425/work/gepa-research/gepa-modified/.venv/lib/python3.12/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected 10 fields but got 6: Expected `Message` - serialized value may not be as expected [field_name='message', input_value=Message(content='[[ ## re...: None}, annotations=[]), input_type=Message])
+  PydanticSerializationUnexpectedValue(Expected `StreamingChoices` - serialized value may not be as expected [field_name='choices', input_value=Choices(finish_reason='st..., 'severity': 'safe'}}}), input_type=Choices])
+  return self.__pydantic_serializer__.to_python(

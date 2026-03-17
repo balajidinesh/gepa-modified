@@ -222,9 +222,3 @@ runs/*
 gepa_artifact/benchmarks/*
 
 logs/
-
-rcb/
-
-super_bench/
-
-*runs*

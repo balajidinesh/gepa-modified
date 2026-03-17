@@ -1,0 +1,17 @@
+  0%|          | 0/1 [00:00<?, ?it/s]Available Tools for g-transformer: on runtime aicodetools-g-transformer-df2905af 4
+Cleaned up Tools g-transformer : True  True
+success=False structured_output={} reasoning='The g-transformer repository and required files are not present in the workspace, making it impossible to proceed with fine-tuning or evaluation.' summary='Attempted multiple directory and file listings, but determined the repository is missing in the environment. No experiment could be run; no metrics could be extracted.'
+After checking the workspace, I found no evidence of the g-transformer repository or any other files required to run the experiment. The repository directory is missing, and there are no code or data files available. As a result, I am unable to perform the fine-tuning or acquire the required BLEU metrics because the necessary source code and data are not present.
+Gold :  {'Sentence-level BLEU': 0.0, 'Document-level BLEU': 0.01}
+Prediction :  None
+has_trajectory
+Checkpoint 'INFO\] Building segmented data': Miss
+Checkpoint 'INFO \| fairseq_cli.preprocess \| Wrote preprocessed data': Miss
+Checkpoint 'data: .*, mode: train, exp_path: .*, slang: .*, tlang: .*': Miss
+Checkpoint 'Load sentence model from .*\.pt': Miss
+Checkpoint 'fairseq_cli.generate \| \[sentence-level\] Generate test': Miss
+Task g-transformer metrics with feedback : Prediction(
+    score=0.0,
+    score_dict={'submitted': 0, 'output_match': 0.0, 'landmarks': 0.0}
+)
+Average Metric: 0.00 / 1 (0.0%):   0%|          | 0/1 [00:44<?, ?it/s]Average Metric: 0.00 / 1 (0.0%): 100%|##########| 1/1 [00:44<00:00, 44.10s/it]Average Metric: 0.00 / 1 (0.0%): 100%|##########| 1/1 [00:44<00:00, 44.11s/it]

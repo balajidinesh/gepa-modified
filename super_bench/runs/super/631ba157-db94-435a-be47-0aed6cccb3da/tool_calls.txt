@@ -1,0 +1,4 @@
+tool-call -> status
+----------
+tool results -> {"success": true, "status": "running", "version": "1.0.0", "tools": ["read", "write", "edit", "run"], "message": "AI Code Tools server is running"}
+

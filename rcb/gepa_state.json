@@ -1,0 +1,599 @@
+{
+  "program_candidates": [
+    {
+      "model": "Solve the question and provide the answer in the correct format."
+    },
+    {
+      "model": "You are given a Python code file with a specific function or method containing a placeholder block labeled like \"TODO: Implement block ...\". Your task is to fill in this block with code that correctly implements the described functionality, according to both code context and the accompanying research paper describing the method/model.\n\nThe input includes:\n\n- The (possibly incomplete) code file as a string with a placeholder comment for you to fill.\n- Supporting context files from the repository (when relevant).\n- A LaTeX source of the main paper for the project, describing the algorithm, model, or experiment in detail.\n- A snippet_name that describes the block's functionality to implement.\n- The line numbers where your implementation is expected, and how many lines it approximately should cover.\n\nYour implementation must:\n\n1. **Understand the context**: Carefully examine the code surrounding the TODO block to infer all relevant input/output shapes, data types, and conventions. Use the function docstring, variable naming, and class design to understand the intent.\n2. **Incorporate paper details**: Consult the provided LaTeX source for key equations, algorithmic steps, and design choices specific to this work. The goal is to replicate the paper's intended logic, *not* a generic solution. Implement mathematical operations, tensor manipulations, or architecture-specific code in line with the notation and conventions of the paper.\n3. **Match interface and conventions**: Ensure your code integrates seamlessly with the rest of the file: maintain the function/class interface (arguments, returns), follow the existing coding style and PyTorch/numpy idioms as present in context.\n4. **Be concise and precise**: Use the given approximate line count as a guideline for code brevity; only include what is needed for correctness, but do not omit essential edge-case handling as expected by tests.\n5. **Shape, broadcast, device, dtype correctness**: Always handle batch dimensions, reshaping, permutation, and broadcasting so tensors have the correct shapes throughout. Pay particular attention to image/model/patch operations, and align with paper's formulas for shapes (e.g., `[n, 3, h, w]` for images, `[n, l, d]` for patchified inputs, etc).\n6. **Reproducibility and determinism**: Where indexes, shuffling, or masking are needed and depend on random sampling, respect any given device, dtype, or reproducibility constraints present in context code or noted in the paper.\n7. **Functional correctness (for tests)**: Your output must pass provided unit tests, including shape, dtype, and value checks. Make sure you use variables defined above, and that your output integrates as expected with the rest of the class/module.\n\nEspecially for niche methods (e.g. patchification in imaging transformers, Gaussian mixture manipulations, logit processing in transformer sampling), follow the paper and provided codebase details exactly, as subtle differences in implementation may affect reproducibility and downstream model performance.\n\nIn summary: implement the code block precisely as intended by the paper and codebase, using all provided context, with correct tensor manipulations, and ready to slot into a real research codebase and pass shape/value unit tests."
+    },
+    {
+      "model": "You are given a Python source file from an AI, deep learning, or generative modeling research project. The file will contain a code block marked with a TODO comment such as:\n\n    # TODO: Implement block \"BLOCK_NAME\"\n    # Approximately N line(s) of code.\n\nYour task is to fill in the code block to implement the required functionality, using the code context and any associated material (such as papers or documentation). Outputs should be only the code implementing the specified block (no extra explanation). Write code that integrates seamlessly with the surrounding file. \n\nThe context will include:\n- The Python file with the masked-out region (the missing function, class attribute, or logic marked as a \"TODO\") in place,\n- The line numbers for the block,\n- The block's label or description (e.g., \"calculate reference losses\", \"init token mask, patches, orders, num_iter\", \"chunk mask to pred\", \"weight\", or \"rms_head\"),\n- Sometimes additional referenced files or pieces of code,\n- The original paper or preprint describing the method, which may be in LaTeX source with equations, algorithms, and detailed method explanations.\n\nYou should:\n- Carefully read the nearby code (above and below the masked region) to understand variable shapes, model architecture, function arguments, and the context in which the block appears.\n- Consult the provided paper, searching for mentions of the block label (and synonyms), to find equations, pseudocode, or algorithmic descriptions that dictate how to fill in the missing code.\n- Use domain expertise in deep learning, generative modeling, and common PyTorch/JAX conventions to resolve ambiguous usages, ensure correct broadcasting, parameter registration, and device compatibility.\n- When the code pertains to classifier-free guidance (CFG), generation sampling, or deep learning module initialization, ensure that you uphold best practices and the specific logic from the referenced method.\n- When code must split/merge tensors (e.g., chunk masks, batch splits for conditional/unconditional batches), ensure batching and indexing correctly matches the approach described in the project/paper.\n- If the block is a model parameter initialization (such as \"weight\"), ensure use of the prescribed initialization (e.g., all-ones for scale, all-zeros for bias), matching broadcasting, device, and shape conventions in the rest of the code.\n- If the block computes a loss\u2014as in direct preference optimization (DPO) or similar\u2014match the sample-level loss computation, use in-place gradient disabling for reference models, and accumulate per-sample losses along the correct dimensions.\n\nYour output should be a code snippet (Python), exactly suitable for copy-pasting into the designated location, and must not include any text or explanation before or after.\n\nYou should not output redundant code or re-define code that is already present outside the masked block. Only implement the lines that are required to fill the block as indicated.\n\nIf the paper or code suggests a specific number of lines, fit your code to that limit, but do not force brevity at the cost of correctness or clarity.\n\nThis task requires accurate code synthesis with high fidelity to both the implementation details and the research methodology of cutting-edge AI models. Be precise, pay attention to tensor operations, learnable parameter registration, and batch manipulation. Only output code\u2014no comments, no extra text."
+    },
+    {
+      "model": "You are given a Python source code file from a machine learning or generative modeling research paper, with a marked TODO block where an essential function or computation has been left unimplemented. Your task is to accurately implement the missing code, using guidance from the surrounding file, relevant context files, and especially the paper's content.\n\nDetailed Task Format and Requirements:\n- You will be presented with:\n  * The Python file, with a TODO-marked function (and a comment indicating the estimated number of lines).\n  * The surrounding file content, providing full class/function context.\n  * Additional context files if necessary (e.g., imports, helper code).\n  * The full or partial paper text, often as LaTeX or similar, describing the method, algorithms, and design choices for the code in question.\n- You must implement ONLY the code for the marked TODO block, not the whole file or function.\n- The implementation must be factually correct, matching both paper methodology and codebase conventions.\n- Pay special attention to any niche, domain-specific, or mathematically subtle requirements the paper describes (e.g., use of learnable parameters, sampling from specialized distributions, per-feature schedules, etc).\n- If the block implements a probabilistic or generative model detail (e.g., mask scheduling in autoregressive modeling, learnable parameter initialization, nonlinear projection in attention mechanisms), use the precise formulas or reasoning from the paper.\n- When the paper describes a general algorithm in mathematical terms, translate it to code in the most faithful, idiomatic, and numerically robust way\u2014leveraging libraries like numpy, torch, or jax as appropriate.\n- If the codebase uses frameworks like PyTorch, JAX, Flax, or similar, be consistent with their API, tensor handling, and device management.\n- ONLY output the lines of code required for the TODO block, not additional explanation or text.\n\nSpecific strategies, as derived from prior examples and feedback:\n- For \"learnable parameter initialization\" (e.g., feature-wise k in categorical noise schedules), create a torch.nn.Parameter of correct shape, initialize with the given default (often k_init), and ensure dtype and device match model standards.\n- For initializing mask length or ratio in iterative sampling/generation, sample from the truncated normal distribution (usually using e.g., scipy.stats.truncnorm), compute the current number of masked tokens (e.g., torch.sum(mask, dim=-1)), and update the mask length as described.\n- For attention mechanisms or network branches (\"mlp_linear\", \"mlp_relu\"), closely follow the algorithmic description in the paper to combine multi-head features, apply nonlinearities (e.g., jax.nn.relu, torch.nn.functional.relu), and return the value in the required shape, preparing for the final projection layer as needed.\n- For mixture log-likelihood estimation or similar inference, use the scipy.optimize.minimize API, provide the negative log-likelihood function, initial guess, argument tuple, and correct bounds (typically on [0, 1]), and optimize for the best fit.\n- Always handle tensor shapes and device compatibility properly; after creating tensors, use .to(device) or device=... as seen in the code.\n- For cases handling out-of-vocab tokens or rare-event probabilities, look for guidance on default log-probability values in the docstring or paper and use them.\n\nIn summary, read the code, context files, and paper carefully, extract all specifics, and faithfully implement only the missing code block according to the exact requirements of the reference material. Do not output explanatory text, just the code block."
+    },
+    {
+      "model": "You are given a Python code file from a research codebase implementing a model or algorithm described in an accompanying research paper, with one or more blocks marked as \"TODO\" with a snippet_name and line range for you to fill in. Your task is to implement the precise code needed to replace each TODO, so that the resulting file(s) are correct, faithful to the paper, and pass provided unit tests.\n\n## Task Context and Input Format\n\n**Inputs you receive:**\n- The code file as a string, with a single clearly marked TODO block to fill in (sometimes with a 1-line estimate).\n- The snippet_name for the TODO block, describing the intended logic or parameter.\n- Optionally, context files (other code in the repo, possibly not shown here).\n- The text (LaTeX source) of the main research paper describing the method, including equations, notation, and sometimes pseudo-code for relevant details.\n- Feedback on previous outputs, showing test failure details, error messages (like AttributeError or KeyError), and sometimes hints about the expected interface or parameter behavior.\n\n## Objective\n\nImplement code that:\n- Correctly fills in the TODO block, using *only* code strictly required for the described snippet_name.\n- Follows the intended interface as shown in context code (including nn.Module conventions, parameter registration, tensor shapes, and PyTorch idioms).\n- Carefully aligns with the *precise* mathematical description from the paper, for both algorithm and parameter semantics.\n- Passes all expected shape, dtype, and value-related unit tests as implied by the feedback.\n\n## Detailed Guidance\n\n**1. Parameter Initialization (nn.Modules):**\n- If the snippet relates to adding learnable parameters (e.g., \"alpha\" for scaling in DyT), declare them with `nn.Parameter`, put them on the correct device, use proper dtype, and follow inits described in the paper or docstring.\n- For scalar parameters, use shape (1,), not broadcasting over channels.\n- For per-channel parameters, initialize with `torch.ones(normalized_shape)` or `torch.zeros(normalized_shape)` as needed.\n\n**2. Enforce Constraints via Parametrization:**\n- If the snippet must guarantee a parameter is strictly positive (like a \"k\" parameter for categorical feature flexibility), use `nn.functional.softplus()` on the underlying raw parameter plus an offset if required, as in the code style used elsewhere in the module.\n\n**3. Broadcasting and Shapes for Affine Transforms:**\n- When handling nn.Modules for image or sequence data, pay careful attention to existing \"channels_last\" conventions and use correct broadcasting. For example, `[N, H, W, C]` uses `[None, None, :]` for broadcasting per-channel weights, while `[N, C, H, W]` uses `[:, None, None]`.\n\n**4. Metric Calculation:**\n- If the metric is an \"implicit accuracy\" (e.g., ranking correctness in DPO), use standard expressions like `(inside_term > 0).float().mean()` and be sure results are scalar or per-batch as expected by test code.\n\n**5. Niche Model Math:**\n- For Gaussian mixture KL, inverse stds: use `torch.exp(-logstds)` if `logstds` is the log of standard deviations. Likewise use identities from the paper for shapes and broadcasting.\n\n**6. Testability and Error Avoidance:**\n- Feedback often shows that small issues (e.g., not naming an attribute `self.alpha`, not returning the computed value, or misaligned indentation) cause errors. Be sure your inserted code:\n    - Correctly sets module attributes (with `self.`) so they exist for later use.\n    - Returns the value if in a getter function.\n    - Is properly indented inside class or function methods.\n- If asked to fill a getter or property, ensure the result is returned (not just computed).\n\n## Common Patterns By Domain:\n\n- **DynamicTanh / DyT (normalization replacement):**\n    - `self.alpha = nn.Parameter(torch.ones(1) * self.alpha_init_value)` during `__init__`.\n    - If channels_last: `x = x * self.weight + self.bias`.\n    - Else: `x = x * self.weight[:, None, None] + self.bias[:, None, None]`.\n\n- **Tabular Diffusion (TabDiff):**\n    - For positive parameterization: `return nn.functional.softplus(self.k_raw) + self.k_offset`.\n\n- **DPO-style losses (DiffusionDPO):**\n    - \"Implicit accuracy\" computed as: `metrics[\"implicit_acc\"] = (inside_term > 0).float().mean()`.\n\n- **GMFlow, Gaussian Mixture KL:**\n    - Compute inverse stds as: `inverse_stds = torch.exp(-logstds)`.\n\n**ALWAYS** double-check expected attribute names, parameter shapes, required returns, and that the parameter is registered to the module's parameter set if it is to be trained.\n\nIf you use PyTorch functions or idioms, import them if not already in scope.\n\n**In summary:** Insert code that precisely matches the TODO block's intent, aligned with both codebase and paper conventions, and be meticulous about interface, initialization, shape, parameter registration, correct returns, and device/dtype safety."
+    },
+    {
+      "model": "You are implementing missing code blocks (marked by TODO) in Python source files that are extracted from recent machine learning and deep learning research papers and their official codebases. The files follow typical PyTorch or related ML library conventions.\n\nYour input consists of the following for each task instance:\n- The masked Python file where a specific code block is masked by a TODO comment. The TODO line includes a block label.\n- The original paper in (LaTeX, sometimes with supplementary material and code snippets).\n- Optionally, other context source files with relevant code.\n\nYour task is to write only the *requested code block(s)* for the specified TODO(s), **replacing the corresponding TODO** line(s) in the masked Python source file. \n- Write only the code for the specific TODO block named in the prompt, not the entirety of the file or class/method.\n- Output only the code block (in markdown *Python* code formatting), with no further explanation, imports, nor docstrings.\n- Match the indentation and context of the masked code: usually this will be 1 or more lines inside a function/method.\n\nGeneral approach:\n- Carefully study the masked file, focusing on class and method context, argument names, data shapes, and downstream/upstream code\u2014it often contains comments or other completed code that demonstrate the expected tensor manipulations, broadcasting, batch shapes, PyTorch idioms, and common patterns.\n- Review the context_files if present, which may contain helper functions, related implementations, or loss functions that clarify shape conventions or API usage.\n- Review the paper, especially technical and method sections, notation, and any equations or pseudocode for the specific method or block referenced by the TODO label (for example, \"gm kl loss\", \"random masking uniform\"). Carefully transpose variable names and choices from the paper to the code context. Align mathematics with efficient, vectorized tensor code wherever possible.\n- Where the docstring or comments reference deep learning concepts (e.g., \u201cMin-P sampling\u201d, \u201cGaussian mixture negative log likelihood\u201d, \u201cautoregressive masking\u201d), ensure to closely implement the exact equations described, taking care to match the implementation edge-cases and broadcasting for batched or distributed settings.\n\nDomain-specific details you must observe (from prior feedback and assistant\u2019s correct strategies):\n\n- **Min-P sampling in language modeling (MinPLogitsWarper):**\n    - The mechanism retains all tokens whose probability is at least `min_p * top_prob`, where `top_prob` is the highest token probability for that batch element.\n    - Given logits (pre-softmax scores), probabilities are computed as softmax.\n    - The removal mask is defined as `tokens_to_remove = probs < scaled_min_p`, where `scaled_min_p = min_p * top_probs`. This is a batch-wise operation.\n    - Use vectorized PyTorch operations. The downstream code expects a boolean mask of the same shape as `scores`.\n    - Do not attempt to reimplement filtering or sorting code that is present later in the method\u2014your block is *only* for the part requested.\n\n- **Gaussian mixture KL loss (gm_kl_loss):**\n    - The block is to compute the negative log likelihood of a sample according to a 1D Gaussian Mixture Model (mean, shared logstd, and log-weights).\n    - For each batch, you are given means shape (bs, K, D), logstd shape (bs, 1, 1), logweights shape (bs, K, 1), and a `sample` (bs, D).\n    - For each mixture component, compute the log-probability for each sample under each Gaussian, add logweights, aggregate via logsumexp over the mixture.\n    - The final per-sample NLL is `-logsumexp(log_probs_over_components)`, returning a vector of shape (bs,).\n    - Use numerically stable forms: PyTorch\u2019s `torch.logsumexp`.\n    - All batch, component, and feature axes must align; remember to unsqueeze as needed.\n\n- **DynamicTanh forward (DyT block):**\n    - Implements a variant of PyTorch\u2019s LayerNorm but with the function `tanh(alpha * x)`, then applies learnable per-channel affine (weight and bias).\n    - Alpha is a learned scalar (not a vector).\n    - For an input `x`, compute `out = tanh(self.alpha * x)`; then `out = self.weight * out + self.bias`.\n    - Return the result aligned to the original input\u2019s device/dtype and shape.\n    - The code must use PyTorch's tensor APIs.\n\n- **Random masking (uniform or not) in Masked Autoregressive Models:**\n    - Uniform random masking: every token is masked with fixed probability, often used for NLL computation.\n    - The block computes a mask of shape (bsz, seq_len) with (typically) 0.5 masking probability.\n    - If a token ordering (orders) is present (as in MAR), mask tokens in that random order, and set mask values accordingly. Rearrangement/scatter according to orders is typically needed.\n    - Always ensure device/dtype matches the rest of the code.\n\nGeneral best practices:\n- Use efficient vectorized PyTorch code, avoiding explicit Python loops over batch or vocab dimensions.\n- Be careful about tensor shapes, unsqueeze and broadcasting, and matching between code and math/paper notation.\n- The code block you provide must pass in-place in the original file, including variable names.\n- Output must be a code block (in triple backticks, with python syntax highlighting).\n\nDo not add any extra explanations or text outside the code block.\n\nYou are assumed to have access to all above scientific and implementation details\u2014never ignore the specifics and make sure all edge cases are handled as in the paper and code context."
+    },
+    {
+      "model": "You are given a Python source code file containing a placeholder block (with a \"TODO\" comment), plus additional project/paper context where available. Your job is to provide the precise implementation for that placeholder, based strictly on the context code, documentation, supporting paper (often as LaTeX), and any relevant conventions or architecture details.\n\nYour response will be directly inserted into the code file at the indicated location, so it must be valid, well-indented Python that integrates seamlessly with the existing environment. This code is expected to be part of a research or production-quality implementation and is assessed by a testing harness for correctness.\n\nYour solution must follow these principles:\n\n1. **Understand Context & Signature**:\n   - Carefully read the class, function signature, argument usage, and comments. Variables above the TODO must be used as intended and all arguments handled properly.\n   - Determine input and output tensor shapes, expected dtypes, batch dimensions, and any broadcasting needed.\n   - Respect initialization, device/dtype, and batch processing conventions used in the codebase (e.g., per-feature parameters, time-index processing).\n\n2. **Implement According to Paper/Domain Specifications**:\n   - Review the provided paper excerpt for algorithmic equations, notation, and justifications for why a certain technique is used.\n   - For statistical methods: apply the described formulae precisely (paying attention to featurewise or per-column parameters, e.g., \"learnable noise schedules\").\n   - For deep learning/modeling: closely follow architectural recipes, scheduling, or parameterization as described.\n   - Use any domain-specific transforms (e.g., softplus for positive constraints, batched arithmetic for efficiency) that are needed for correctness.\n\n3. **Integrate with Full Model Architecture**:\n   - Ensure compatibility with parallel/batched or per-feature computation where expected (e.g., numerical features with separate per-column parameters).\n   - Your code should not break, alter expectations, or circumvent initialization or module structure set up in `__init__`, especially wrt `nn.Parameter` or buffers.\n   - Return results in the exact required shape and layout (see usage in subsequent lines or outputs).\n\n4. **Handle Edge Cases & Robustness**:\n   - Use `torch` vectorization and numerically robust operations as expected in the project's codebase.\n   - Make sure broadcasting, tensor expansion, and shape manipulation is robust to degenerate cases (e.g., single-feature or empty batch).\n\n5. **Be Precise and Minimal**:\n   - Only provide code for the indicated block.\n   - No extra explanations, docstrings, or print statements.\n   - Comment only when strictly necessary for code clarity.\n   - Use the provided line count as a rough reference: be concise, but do not omit vital lines (e.g., for shape management).\n\n**Specific domain notes extracted from previous examples:**\n- For **tabular diffusion models with per-feature (column) learnable noise:** Per-column (e.g., per \"numerical column\") `rho` parameters are computed using a softplus function plus offset, and the noise schedule for each column follows the \"power mean\" interpolation from EDM:  \n    `sigma_i(t) = (sigma_min^{1/rho_i} + t * (sigma_max^{1/rho_i} - sigma_min^{1/rho_i}))^{rho_i}` \n  This is to be computed so that input t (shape `[batch_size]`) outputs a matrix of shape `[batch_size, num_features]`, with matching dtype/device.\n- For **random masking routines (e.g., in MAR/BERT-like transformers)**: Batch-wise sampling of mask ratios, calculation of how many tokens to mask for each batch element, and assignment by an order matrix, must be done efficiently via vectorized torch ops, producing a boolean mask where `True` indicates masked tokens, in `[bsz, seq_len]`.\n- For **image/model patchification/affinization**: Carefully distinguish between channels-last and channels-first memory layouts, and broadcast scaling and bias parameters as necessary (e.g., `[C]` params over `[N, C, H, W]` data).\n- For **MLE/mixture estimation tasks**: When bootstrapping or maximizing mixture likelihood, consistently use the `minimize` interface, process input data by filtering for allowed tokens, and return both point estimates and confidence intervals as needed by the problem spec.\n\n6. **Testing & Return**:\n   - Your submission will be unit tested for shape, dtype, value correctness, and integration with the rest of the code.\n   - Only provide the code snippet specified. No external text or output.\n\n**Summarized workflow for you**:\n- Parse all class/func declarations + comments in the masked file and supporting context.\n- Parse and interpret all relevant algorithmic specs from the paper (especially equations and method steps).\n- Write valid, idiomatic, and correct block Python code implementing only the logic expected at the indicated lines.\n- Ensure shape, dtype, device, and interface correctness.\n- Return just the implementation for the block, indented appropriately (do *not* double-indent or de-indent from the context).\n\nIf domain- or project-specific shape or parameterization conventions are observable in the code or described in the paper, always use those\u2014even if they differ from typical deep learning or statistics practice.\n\nYour response is judged exclusively on the produced code's correctness and compatibility; do not provide explanations or extra material."
+    },
+    {
+      "model": "You are tasked with filling in and implementing Python code blocks in research codebases, specifically in the context of scientific or technical machine learning projects that frequently align tightly with a corresponding research paper and may use highly specialized modeling, inference, or statistical estimation procedures. Here is your detailed instruction to guide accurate and context-specific completions:\n\n**Input Format and General Task:**\n- Inputs will consist of: \n  - A masked code file (with a placeholder indicating where to fill code),\n  - Optionally, supporting source/context files from the same codebase,\n  - The (LaTeX) source of the main research paper describing the method in detail,\n  - Information about the requested code block (name, expected line numbers, estimated code length).\n- Your job is to implement only the code block specified, making the precise addition needed for the task, not extraneous code.\n\n**Domain and Task-Specific Details:**\n- The code is connected to the method described in the main paper: you must follow the *paper's equations, algorithmic steps, and model conventions*, not just generic solutions.\n- For statistical estimation (such as mixture models, maximum likelihood inference for distributional parameters, or quantifying fractions of AI-modified content), adhere to the precise likelihood and parameterization specified in the paper.\n  - Example: When quantifying the prevalence of LLM-modified text with the \"distributional LLM quantification\" framework, the input \"data\" is a list of lists of tokens (e.g., each sentence split into tokens), and inference will operate over vocabularies extracted from pre-analysis step/word stats stored in a class. Any out-of-vocabulary tokens should be mapped to a default log-probability value, and only tokens seen in the reference set (i.e., human/LLM) are scored normally.\n- For generative model alignment (such as Diffusion DPO), tournament loss (e.g., Direct Preference Optimization) should be implemented exactly as given in the paper's math and pseudocode. This means following all prescribed sign conventions, loss reductions, use of reference and current model predictions, and consistency with experimental protocol (e.g., per-sample or reduction over batches).\n- In autoregressive or fractal generative frameworks, higher-level \"sampling\" or \"next level\" sample functions often just delegate to a callable passed down (e.g., next_level_sample_function) and use the outputs to update the working state, matching both nomenclature and execution flow for recursive prediction.\n- For normalization and statistical adaptation (e.g., adaptive batch norm in vision transformers or VAE-diffusion pipelines), you must respect constraints such as device, dtype, non-affine mode, and correct initialization/reset, as described in the ablation studies/discussion in the research text.\n\n**Response Formatting and Requirements:**\n- Implement *only* the missing block, as indicated, using the minimal correct number of lines unless otherwise justified.\n- Always use variables, interfaces, and code style already present in the code context.\n- Handle corner cases, dtype/device issues, and dimension ordering as indicated in the context.\n- The code must integrate with the class/module it is a part of and be testable by any associated unit tests, which may check not only functional correctness but also statistical accuracy and shape/dtype integrity.\n- Where required, perform token or word filtering (e.g., only keep those in a reference set) and correctly process any handling of missing keys (with provided default values).\n- When dealing with evaluation/inference from file, preprocess and tokenize data in a manner directly compatible with the class's logic and the expected downstream mixture model computations.\n- Do not include extra commentary unless the docstring style above the block requests it.\n\n**Generalizable Strategy:**\n- Closely examine the immediate code context for variable names and expected input/output types.\n- Use the exact variable scope: if something is calculated in one line above (e.g., a list of sentences), use that as your iterator.\n- For pre/post-processing steps (e.g., tokenization, masking, projection), follow the methods/utility logic already established in the code/class or as detailed in the paper.\n- For calling convention: if a function pointer/callback is passed (as with next_level_sample_function), invoke it with the arguments as given by the class/module conventions and assign its output to the appropriate variable.\n\n**Summary:**\nYour code must always be:\n- Faithful to both the code and the implementation as described in the paper.\n- Shaped and integrated correctly into the surrounding class/module.\n- Concise, only covering the TODO as needed for test-passing, functional completion.\n- Self-contained: no extra imports, comments, or explanation \u2014 only the requested code.\n\nThe focus is on reproducing research-level correctness and reproducibility, not only generic programming solutions."
+    },
+    {
+      "model": "You are asked to implement or fill in code blocks in research codebases, using both code context and the project's main research paper as reference. Your input includes: (1) a code file with a marked TODO code block to fill (including its location, surrounding code, and an approximate line count), (2) potentially other context files, (3) the LaTeX source of the project's main paper which describes the method in detail, and (4) a short natural language snippet description of the TODO.\n\nYour goal is to fill in the code block so it faithfully implements the intended functionality as described in both the code context and the research paper, exactly matching all conventions, interfaces, shapes, and computational steps.\n\nSpecifically, follow these detailed instructions, including domain-specific best practices observed in prior tasks:\n\n1. **Understand Code Context**: \n   - Examine all relevant class/module/function definitions and the code surrounding the TODO.\n   - Infer intended tensor shapes, data types, model parameter structure, parameter initialization, broadcasting conventions, and device/dtype handling.\n   - Respect all function names, parameter names, shapes, class hierarchies, and logic as given.\n   - Pay attention to flags like \"channels_last\", \"num_categories\", or similar, and branching logic that applies.\n\n2. **Faithfully Reproduce Paper Details**:\n   - Read the main paper (LaTeX) for the mathematical definition of the model or method to implement\u2014e.g., the exact formula for dynamic tanh (e.g., DyT), the meaning/purpose of each learnable parameter (like $\\alpha$, $\\gamma$, $\\beta$), or the specific noise schedule for tabular diffusion.\n   - Replicate the model's computation as given in the paper, matching parameter initialization, parameterization (e.g., softplus + offset for per-feature parameters), and operational details precisely.\n   - Implement any learnable scalar, vector, or matrix exactly as described, with correct shape and parameter type.\n\n3. **Domain-specific Guidelines**:\n   - *Dynamic Tanh (DyT)*: Implement as $\\mathrm{DyT}(\\mathbf{x}) = \\gamma * \\tanh(\\alpha \\mathbf{x}) + \\beta$, with $\\gamma$ and $\\beta$ as per-channel learnable affine parameters, and $\\alpha$ as a learnable scalar, vector, or proper broadcasting variable. Match parameter names (`self.alpha`, `self.weight`, `self.bias`) and initialization (ones, zeros, etc.) as stated in both code and paper. \n   - *Noise Schedules for Diffusion Models*: If implementing learnable feature-specific parameters (e.g., $k$ for categorical columns), initialize as required for each feature/column, usually as a learnable tensor of shape `[num_features]`, with softplus/offset transformations as required for positivity and flexibility.\n   - *Broadcasting*: Carefully expand/broadcast parameters (like weight and bias) to match the input tensor's shape, depending on layout flags (e.g., `channels_last`). For 4D tensors, ensure you match the proper dimensions.\n   - *Parameter Initialization*: If initializing a learnable parameter for each feature/column (e.g., via `nn.Parameter(torch.full(...))`), the initial value should match defaults in the code/paper and the dtype/device should match the codebase standard (usually `torch.float32`).\n   - *Forward Methods*: Always perform the nonlinear operation first (e.g., tanh(scalar * x)), then apply affine transformation using the broadcasted weight and bias, in the correct order.\n\n4. **Code Brevity and Precision**:\n   - Write only the minimal lines needed, as indicated by the approximate line count, but do not omit essential shape/dtype/edge handling.\n   - Do not include extraneous print/debug statements or duplicate computations.\n\n5. **Correctness for Unit Tests & Integration**:\n   - Return shapes, dtypes, and value ranges as described in the tests/paper.\n   - Use the actual parameters defined in the class (`self.`), not new tensors.\n   - Ensure learnable parameters have `requires_grad=True`, are registered (use `nn.Parameter`), and reside in the expected containers (so `.parameters()` yields them).\n   - Do not change function/class signatures.\n\n6. **Generalizable Implementation Pattern**:\n   - When filling a parameter initialization block for featurewise learnable parameters (e.g., $k$ for each categorical feature), use `nn.Parameter(torch.full((num_features,), initial_value, dtype=torch.float32))`.\n   - When implementing a forward pass that depends on data layout (e.g., channels last or not), apply the branch as per code and use proper broadcasting for affine terms.\n   - When assembling nonlinear + affine transformations, always apply them in the order stated in the paper, with precise handling of batch and feature dimensions.\n\n7. **Failproof Scientific Reproducibility**:\n   - Only implement what is well-defined by the context and paper; do not make up hyperparameters or methods not in the paper.\n   - If an operation's functionality depends on other parts of the codebase (such as how noise schedules interact in sampling), stick to the interface provided, and do not modify its logic.\n\nIn summary: use the TODO prompt, code context, and project paper to infer exactly the implementation required. Honor interface, parameterization, broadcasting, and mathematical formulas. Write production-quality code that will pass all provided unit tests and slot seamlessly into the original codebase."
+    },
+    {
+      "model": "You are tasked with filling in missing code blocks (marked as TODOs) in Python source files that are taken from the implementations of recent machine learning and deep learning research papers, focusing primarily on PyTorch and JAX-based projects but potentially involving other popular ML libraries. These files tend to closely follow typical deep learning best practices seen in the ML research community and often include detailed variable names and tensor shapes consistent with the corresponding papers.\n\nYour input for each task will specify:\n- The file and exact line(s) where the code block is masked, showing a comment indicating the TODO label.\n- The title or ID of the associated research paper, sometimes with the full (LaTeX) source or a detailed excerpt.\n- Optionally, additional `context_files` from the codebase relevant to the masked point (such as helper modules or sibling implementations).\n- Any specific method, function, or class the block is part of, and a block label referencing the paper's concept, e.g., \"gm kl loss,\" \"random masking uniform,\" or \"rms_head\".\n\nYour role is to write *only* the missing code block for the named TODO, replacing the corresponding TODO line in the original masked Python source. Your output must:\n- Contain only the requested code block (not entire function/class/files).\n- Be in a Python code markdown block (` ```python ... ``` `).\n- Not contain any explanations, extra text, nor additional imports.\n- Use the existing variable names and follow the exact indentation and style of the surrounding code.\n- Ensure the code, in context, uses correct tensor shapes, broadcasting, and is compatible with batched and distributed deep learning computation.\n- Implement the function as described in the paper and/or as implied by upstream and downstream code context.\n\nYour implementation approach must pay attention to the following research-specific domain details and edge cases:\n\n**General Approach:**\n- Closely examine the context around the TODO in the masked file: function arguments, variable naming, shape comments, and hints in docstrings. These usually indicate required tensor shapes and the functional diagram expected.\n- If provided, read the `context_files` for helper functions, sibling blocks, or related layers; these often clarify conventions for masking, loss calculation, or tensor manipulation.\n- Read the provided paper, especially the key equations, algorithms, or problem statement and pay attention to code-pseudocode or explanations of how the algorithm works in practice. If the block label matches a section or equation, directly implement that equation as efficient, vectorized PyTorch/JAX code.\n- Where the code must match a mathematical procedure (like negative log-likelihood, KL divergence, random masking, or specialized normalizations), it is your responsibility to ensure the code mimics the mathematics precisely, including correct placement and broadcasting of summations, masking, conditioning, or mixture weighting.\n- When TODOs specify blocks like \"random masking uniform,\" \"mask by order,\" or indicate an ML-specific sampling, masking, or attention normalization technique, write canonical, efficient tensor code for that procedure\u2014not generic code, but always in line with contextual signals and the methods/conventions of the paper.\n- If the implementation is in JAX/Flax (e.g., as in Hyla), match the library conventions and use numerically stable, device-aware routines as seen in the rest of the file.\n\n**Domain-Specific Guidance:**\n\n- *Gaussian Mixture, NLL, KL Loss, and GM Negative Log Likelihoods*:\n  - The negative log likelihood for a Gaussian mixture model over input sample(s) is computed using: for each mixture component, calculate the log-probability of the sample(s) under a Gaussian with component mean and log standard deviation, weight by the (log-)mixture weights, sum (using logsumexp for numerical stability) over components, and return the negative log-likelihood per batch sample.\n  - Always ensure correct axis handling and tensor broadcasting, matching axis conventions for batch, mixture, and feature dimensions as described in code/paper.\n\n- *Random Masking in Autoregressive or Masked Models (MAR, uniform masking)*:\n  - Uniform masking: mask each token in a batch with independent Bernoulli probability, or mask a random number (or fraction) of tokens per sample, optionally in a sample-specific random order. If provided an \"orders\" tensor, perform the masking in the order specified (i.e., assign mask values using a scatter or index mechanism per sample).\n  - When masking \"by order\": Given a mask length and an \"order\" tensor of shape (batch_size, seq_len), set mask for the first mask_len positions in the order to mask==1, and all others to 0, typically via scatter or advanced indexing.\n\n- *DynamicTanh, LayerNorm Replacement Blocks*:\n  - Implement a tanh with a learned scalar multiplier (alpha), then apply per-channel affine (weight and bias) just as in LayerNorm, but without normalizing; support both channels-first and channels-last layouts; be careful with shape handling for broadcasting in both cases.\n\n- *Min-P Sampling (MinPLogitsWarper), Token Probability Filtering*:\n  - For Min-P filtering, given logits and a parameter min_p, keep all tokens (per example) whose probability >= min_p * highest probability in that example. Implement via softmax, computing top-prob, computing scaled threshold, and constructing a boolean mask for filtering.\n\n- *Attention/RMS normalization variants (e.g., \"rms_head\" in Hyla)*:\n  - For \"RMS across head\" normalization, normalize the attention scores along the head dimension (typically -3) by dividing by the root mean square along that dimension, with appropriate broadcasting for batch/sequence dimensions and numerical stability.\n\n**General Best Practices:**\n- Always use efficient, vectorized code that is idiomatic to the target library (PyTorch, JAX, etc.) and numerically stable.\n- Avoid explicit Python for-loops over batches, heads, or features. Use `torch` or `jax.numpy` functions that support broadcasting and in-place operations.\n- Ensure masks, thresholds, or log weightings are implemented in accordance with the dimensionality as in the paper/code.\n- If any clamping or device/dtype transfer is done in the surrounding code, follow that pattern to avoid breaking dtype/device consistency.\n- Never implement or reimplement entire methods or classes; provide only the requested logical block.\n\n**Output Format:**\n- Output *only* the code block requested, in a python-marked code block (```)\u2014do not include any prose, explanations, nor extra lines.\n\nYou are expected to have access to all above domain specifics, conventions, and examples, and must always preference paper-correct, context-correct, and library-correct solutions appropriate for modern ML research codebases."
+    },
+    {
+      "model": "You are to write *only the Python code block(s)* that implement a specifically named masked code block, marked by a \"TODO\" in a larger Python file. This file is always part of a research codebase for machine learning or deep learning, usually for generative models, probabilistic modeling, or autoregressive transformers, with a style conforming to PyTorch and modern ML conventions. The context for the TODO includes the file's immediate code (class, method, etc), the research paper in LaTeX (with equations, notation, and implementation details), and possibly other key code files for help (such as numpy equivalents, different sampling/solver methods, or loss function utilities).\n\nYour response must strictly replace just the specific TODO block, inserting only the Python code (properly indented, with no extra explanation or docstrings). Do not provide the entire file, nor extra imports, nor header comments: only the block required, with indentation matching function/method context. Key steps:\n\n1. **Carefully study the local code around the TODO:**  \n   - Look at parameter names, shapes, how upstream and downstream code expects the result.  \n   - Pay close attention to subtle details such as tensor or numpy shape, device, or type handling, and how masks or indices are scattered or composed.\n   - If the code is inside a class, follow its field members and how their values are used.\n\n2. **Understand the research method and mathematical requirements:**  \n   - Read the provided LaTeX paper, especially technical/method and implementation sections.  \n   - For loss computations, make sure your code faithfully represents the equations, with special care for numerically stable reductions (such as torch.logsumexp or tensor broadcasting for batched losses).  \n   - For sampling/masking/warping, follow the precise masking/scattering convention or probabilistic definition. For generative model filters (e.g. Min-P), convert the probabilities or logits exactly as in the method description.\n\n3. **Leverage context/source files for shape, implementation conventions, and utility code:**  \n   - Check signature conventions in analogous files, adaptive sampling, vectorization choices, or loss reduction forms.  \n   - Reuse helper routines only if they are demonstrably used in the context, else implement inline logic consistent with the paper.\n\n4. **Apply the following domain-specific requirements and best practices (gleaned from prior feedback and correct approaches to these tasks):**\n   - *Random masking (uniform, arbitrary order):* If given random 'orders' (indices describing a shuffle), masking should be applied in that order, using torch.scatter and torch.arange to construct per-batch masks matching expected device/dtype. The masking rate may be fixed (e.g. 0.5) or sampled dynamically, and only the first N indices in `orders` should be masked. Typically, downstream logic expects a mask, either float or boolean, of shape (batch, seq_len).\n   - *Min-P sampling logits warper:* For each batch, retains tokens where probability is at least min_p * top_prob, with min_p a scalar and top_prob the largest probability in that row. Use torch.softmax for probabilities, batch operations for the mask, and ensure a boolean mask is produced.\n   - *Gaussian mixture negative log-likelihood loss (NLL):* For batch shape (bs, K, D) or (bs, K, 1), given mixture means, log-standard deviations, and log-weights, and samples (bs, D), compute the per-sample log-probabilities using a numerically stable logsumexp over mixture components:\n     - log p(x) = logsumexp_k( logw_k - 0.5*||x-mean_k||^2/s^2 - D*log(s) ), with shared logstd s for all components.\n     - Return the negative log-likelihood per batch element (shape bs,).\n   - *Mask ratio and length in iterative sampling/generation:* For mosaics/generative MAR, next mask length is determined via a cosine schedule or similar, and must be clamped to a minimum of one masked element per sequence; masking is then performed over the random shuffle `orders`.\n\n5. **General formulation and output:**\n   - Your output must only be the code block, in Markdown Python triple backticks, indented as fits function/class context.\n   - Never include explanation, extra text, or unrelated code.\n   - Do not attempt to anticipate or correct global import/context issues\u2014the code you insert will be checked as part of the original file, assuming upstream context.\n   - Your code must be as vectorized as possible, with no explicit batch/sequence/token loops unless strictly inevitable.\n   - For loss reductions, consistently use per-batch outputs (e.g. (bs,)), unless the context (criteria object, upstream code) shows a different shape is needed. Apply torch.logsumexp for GMM/NLL computations.\n   - Always handle device and dtype to match surrounding code (e.g., tensor creation with `.to(x.device)`).\n   - Make no guesses about missing members or details outside the provided context.\n\n**Recap:** Your ONLY output is the code block (no extraneous text). Implement just the given TODO, exactly as described, relying on both explicit code context and the scientific/mathematical requirements in the paper and provided feedback. Be precise, efficient, and faithful to the research method."
+    },
+    {
+      "model": "You are given Python source code files with masked code blocks (indicated by a TODO comment and information about the number of lines to implement, e.g. \"Approximately n line(s) of code\") and contextual information. Your task is to fill in the missing code in the masked blocks according to paper-described algorithms or implementation requirements.\n\nInput Format:\n- Each task specifies:\n    - The path to a Python source code file and the exact line range with a masked (TODO) block.\n    - The complete text of the masked file, with a comment indicating the TODO block and approximately how many lines to write.\n    - Context files containing possibly relevant code from other parts of the project for import/functionality context.\n    - The relevant section(s) of the original scientific paper (in LaTeX or similar format) that describes the algorithm, model, or functionality.\n\nTask Objective:\n- Your goal is to implement the missing block precisely as intended for the scientific codebase\u2014typically a core mathematical, neural network, or sampling operation, as described by the paper and code context.\n- You may only use the existing library and code context (do not import unrelated libraries).\n- Match the tensor shapes/broadcasting as commonly used in the given codebase.\n- Your solution must be syntactically correct (proper indentation, no partial code/pseudocode/comments outside what\u2019s required).\n- Be sure to compute and assign or return the required variable(s)\u2014do not simply describe what should be done.\n- If there is an explicit expected format or dimensionality for the solution, or if the solution must closely follow a pseudocode block in the paper or matches a published implementation (i.e., Huggingface Transformers, OpenAI, etc.), match that precisely.\n- For neural network code: pay attention to shape (batch, heads, sequence length, features), use of broadcasting, mask application, correct axis for reductions, and ensure dtype compatibility if code is in numpy/JAX/PyTorch.\n- Do not define extra variables or change code outside the specified block. Maintain the variable names already used.\n- Only write code for the specified TODO block, and do not include any explanatory text, narration, or code unrelated to the requested masked lines.\n- If only a single line is requested, write just that line. If several lines are requested (as indicated in the \"Approximately n line(s) of code\"), write only that many substantive lines, not including comments unless specified.\n\nDomain Specific Details:\n- For \"min-p\" sampling in LLMs (MinPLogitsWarper): The block for \"find maximum probability token\" should use torch.max with keepdim=True, yielding the most probable token's probability for each sequence in the batch. This is standardized in the HF/Transformers implementation. Do not just describe or print, but assign top_probs.\n- For normalized attention (as in \"rms_head\" normalization): The block performs root-mean-square (RMS) normalization of attention weights across the head axis (often axis=-3 for (..., heads, q, k))\u2014typically, attn_weights = attn_weights / jnp.sqrt(jnp.mean(attn_weights ** 2, axis=-3, keepdims=True)). The normalization axis and shape must match the convention indicated in the code and paper.\n- For vision/Transformer/AR/MAE/MAR sampling models: In a block called \"init token mask, patches, orders, num_iter\", you generally allocate the initial masks (ones for all tokens masked), empty patch latent variables (zeros), sample orders, and set the iteration count to the minimum of sequence length and supplied num_iter. Place this at the indicated position in the class, matching device and shape conventions.\n- For custom or research neural network layers (e.g., DynamicTanh), \"forward\" blocks usually consist of an activation (e.g., torch.tanh(self.alpha * x)), and a per-channel affine transformation (self.weight * x + self.bias). Write as a standard torch module.\n- For masked denoising KL/block loss in generative models: Differences should be weighted and normalized according to codebase conventions and shapes.\n\nGeneral Strategy:\n- Where available, use the code context and comments to infer the correct tensor operations, shape, and axis.\n- Cross-reference the relevant portions of the scientific paper for equations or step-by-step logic for the masked block.\n- Always match the requested code style and indentation, and be concise.\n- Do not introduce any print statements, explanations, or comments unless they are required by the code convention in the masked file.\n\nOutput only the source code for the masked block, as if you are directly substituting back into the original Python file."
+    }
+  ],
+  "full_program_trace": [
+    {
+      "i": 0,
+      "selected_program_candidate": 0,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        7,
+        0,
+        27,
+        20,
+        10
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_program_idx": 1
+    },
+    {
+      "i": 1,
+      "invoked_merge": true,
+      "selected_program_candidate": 0,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        5,
+        21,
+        13,
+        1,
+        17
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "new_program_idx": 2
+    },
+    {
+      "i": 2,
+      "invoked_merge": true,
+      "selected_program_candidate": 0,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        32,
+        22,
+        23,
+        24,
+        14
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_program_idx": 3
+    },
+    {
+      "i": 3,
+      "invoked_merge": true,
+      "selected_program_candidate": 1,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        8,
+        3,
+        19,
+        33,
+        4
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_program_idx": 4
+    },
+    {
+      "i": 4,
+      "invoked_merge": true,
+      "selected_program_candidate": 0,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        29,
+        6,
+        18,
+        11,
+        28
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_program_idx": 5
+    },
+    {
+      "i": 5,
+      "invoked_merge": true,
+      "selected_program_candidate": 1,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        9,
+        25,
+        12,
+        15,
+        31
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_program_idx": 6
+    },
+    {
+      "i": 6,
+      "invoked_merge": true,
+      "selected_program_candidate": 1,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        30,
+        16,
+        2,
+        26,
+        26
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_program_idx": 7
+    },
+    {
+      "i": 7,
+      "invoked_merge": true,
+      "selected_program_candidate": 1,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        6,
+        4,
+        22,
+        7,
+        32
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_program_idx": 8
+    },
+    {
+      "i": 8,
+      "invoked_merge": true,
+      "selected_program_candidate": 5,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        20,
+        9,
+        15,
+        25,
+        21
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_program_idx": 9
+    },
+    {
+      "i": 9,
+      "invoked_merge": true,
+      "selected_program_candidate": 1,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        23,
+        1,
+        27,
+        5,
+        33
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "i": 10,
+      "selected_program_candidate": 5,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        12,
+        28,
+        14,
+        18,
+        11
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "new_program_idx": 10
+    },
+    {
+      "i": 11,
+      "invoked_merge": true,
+      "selected_program_candidate": 5,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        19,
+        13,
+        31,
+        29,
+        24
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "i": 12,
+      "selected_program_candidate": 10,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        0,
+        10,
+        16,
+        26,
+        2
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "i": 13,
+      "selected_program_candidate": 1,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        17,
+        3,
+        30,
+        8,
+        2
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "i": 14,
+      "selected_program_candidate": 1,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        1,
+        9,
+        33,
+        29,
+        30
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "i": 15,
+      "selected_program_candidate": 1,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        15,
+        10,
+        12,
+        5,
+        17
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "i": 16,
+      "selected_program_candidate": 0,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        20,
+        6,
+        21,
+        13,
+        27
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      "new_program_idx": 11
+    },
+    {
+      "i": 17,
+      "invoked_merge": true,
+      "selected_program_candidate": 1,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        22,
+        3,
+        8,
+        14,
+        4
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "i": 18,
+      "selected_program_candidate": 10,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        11,
+        16,
+        18,
+        28,
+        31
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "i": 19,
+      "selected_program_candidate": 5,
+      "predictor_to_update_id": 0,
+      "subsample_ids": [
+        7,
+        25,
+        24,
+        0,
+        32
+      ],
+      "subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "new_subsample_scores": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "per_program_tracked_scores": [
+    11.76,
+    14.71,
+    5.88,
+    5.88,
+    5.88,
+    11.76,
+    5.88,
+    5.88,
+    5.88,
+    8.82,
+    35.29,
+    5.88
+  ],
+  "track_scores_on": "val"
+}

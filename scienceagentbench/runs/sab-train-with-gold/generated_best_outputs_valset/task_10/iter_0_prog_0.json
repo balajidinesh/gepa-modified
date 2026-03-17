@@ -1,0 +1,57 @@
+[
+    {
+        "instance_id": "46",
+        "domain": "Geographical Information Science",
+        "subtask_categories": "Map Visualization",
+        "task_inst": "To evaluate mountain lion habitat suitability, calculate terrain ruggedness using elevation data. Visualize and save the outputs as \"pred_results/ruggedness.png\".",
+        "domain_knowledge": "Terrain Ruggedness Index (TRI) expresses the amount of elevation difference between adjacent cells of a DEM. The TRI function measures the difference in elevation values from a center cell and eight cells directly surrounding it. Then, the eight elevation differences are squared and averaged. The square root of this average results is a TRI measurement for the center cell. This calculation is then conducted on every cell of the DEM. The \"generic_filter\" function imported from the \"scipy.ndimage\" package can calculate a multidimensional filter using a given \"filter_range\" function.",
+        "dataset_folder_tree": "|-- MountainLionNew/\n|---- Elevation.tfw\n|---- Elevation.tif\n|---- Elevation.tif.ovr\n|---- Mountain_Lion_Habitat.geojson\n|---- Elevation.tif.aux.xml\n|---- Protected_Status.tfw\n|---- Protected_Status.tif.aux.xml\n|---- Protected_Status.tif.ovr\n|---- Protected_Status.tif\n|---- Protected_Status.tif.vat.dbf\n|---- distance.tif\n|---- Protected_Status.tif.vat.cpg\n|---- landCover.tif.ovr\n|---- landCover.tfw\n|---- landCover.tif\n|---- landCover.tif.aux.xml\n|---- landCover.tif.vat.cpg\n|---- landCover.tif.vat.dbf\n|---- protected_status_reclassified.tif\n|---- ruggedness.tif\n|---- landcover_reclassified.tif\n|---- road.geojson",
+        "dataset_preview": "[START Preview of dataset/Elevation.tif]\n[[242 242 244 ... 135 135 135]\n [242 242 242 ... 135 136 136]\n [242 241 240 ... 136 136 136]\n ...\n [  0   0   0 ...   7   7   7]\n [  0   0   0 ...   3   3   3]\n [  0   0   0 ...   3   3   3]]\n [EnD Preview of dataset/Elevation.tif]",
+        "gold_program_name": "mountainLion1.py",
+        "output_fname": "pred_results/ruggedness.png",
+        "eval_script_name": "mountainLion1_eval.py",
+        "gold_code": "import rasterio\nfrom scipy.ndimage import generic_filter\nimport matplotlib.pyplot as plt\n\ndef main():\n    elevation_path = \"benchmark/datasets/MountainLionNew/Elevation.tif\"\n    with rasterio.open(elevation_path) as src:\n        elevation = src.read(1)\n        mask = elevation != src.nodata  # Create a mask\n\n    def range_filter(values):\n      return values.max() - values.min()\n\n    ruggedness = generic_filter(elevation, range_filter, size=(3, 3))\n\n    plt.figure(figsize=(10, 8))\n    plt.title(\"Ruggedness\")\n    plt.imshow(ruggedness, cmap='viridis')\n    plt.colorbar(label='Ruggedness')\n    plt.savefig(\"pred_results/ruggedness.png\")\n\n\nif __name__ == \"__main__\":\n    main()",
+        "add_inst": "1. The dataset path: /benchmark/datasets/*\n2. use The output path must start with absoulute path :  /pred_results/* \n3. You have to submit the .py python file path for the task\n4. code for the task in the .py file and return its absolute file path "
+    },
+    {
+        "generated_code": "#!/usr/bin/env python3\nimport rasterio\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\ndef calculate_ruggedness(elevation_arr):\n    \"\"\"\n    Calculates terrain ruggedness as the mean absolute difference between a cell and its 8 neighbors\n    \"\"\"\n    from scipy.ndimage import generic_filter\n    def ruggedness_func(window):\n        center = window[4]\n        return np.mean(np.abs(window - center))\n    return generic_filter(elevation_arr, ruggedness_func, size=3, mode='nearest')\n\ndef main():\n    # Paths\n    input_path = '/benchmark/datasets/MountainLionNew/Elevation.tif'\n    output_png = '/pred_results/ruggedness.png'\n\n    # Read elevation data\n    with rasterio.open(input_path) as src:\n        elevation = src.read(1)\n        profile = src.profile\n\n    # Calculate ruggedness\n    ruggedness = calculate_ruggedness(elevation)\n\n    # Visualize and save\n    plt.figure(figsize=(8, 6))\n    plt.imshow(ruggedness, cmap='terrain')\n    plt.colorbar(label='Ruggedness Index')\n    plt.title('Terrain Ruggedness')\n    plt.axis('off')\n    plt.tight_layout()\n    os.makedirs(os.path.dirname(output_png), exist_ok=True)\n    plt.savefig(output_png, bbox_inches='tight')\n    plt.close()\n\nif __name__ == '__main__':\n    main()\n",
+        "result": {
+            "trajectory": {
+                "thought_0": "I need to write a Python script to calculate terrain ruggedness from the provided elevation data (Elevation.tif), visualize the result, and save the output as a PNG in /pred_results/ruggedness.png. To do this, I'll use libraries like rasterio, numpy, and matplotlib. I will start by creating an initial Python script structure with all necessary imports and function placeholders, and save the file to /pred_results/calc_ruggedness.py.",
+                "tool_name_0": "write_file",
+                "tool_args_0": {
+                    "content": "#!/usr/bin/env python3\nimport rasterio\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport os\n\ndef calculate_ruggedness(elevation_arr):\n    \"\"\"\n    Calculates terrain ruggedness as the mean absolute difference between a cell and its 8 neighbors\n    \"\"\"\n    from scipy.ndimage import generic_filter\n    def ruggedness_func(window):\n        center = window[4]\n        return np.mean(np.abs(window - center))\n    return generic_filter(elevation_arr, ruggedness_func, size=3, mode='nearest')\n\ndef main():\n    # Paths\n    input_path = '/benchmark/datasets/MountainLionNew/Elevation.tif'\n    output_png = '/pred_results/ruggedness.png'\n\n    # Read elevation data\n    with rasterio.open(input_path) as src:\n        elevation = src.read(1)\n        profile = src.profile\n\n    # Calculate ruggedness\n    ruggedness = calculate_ruggedness(elevation)\n\n    # Visualize and save\n    plt.figure(figsize=(8, 6))\n    plt.imshow(ruggedness, cmap='terrain')\n    plt.colorbar(label='Ruggedness Index')\n    plt.title('Terrain Ruggedness')\n    plt.axis('off')\n    plt.tight_layout()\n    os.makedirs(os.path.dirname(output_png), exist_ok=True)\n    plt.savefig(output_png, bbox_inches='tight')\n    plt.close()\n\nif __name__ == '__main__':\n    main()\n",
+                    "file_path": "/pred_results/calc_ruggedness.py"
+                },
+                "observation_0": {
+                    "success": true,
+                    "file_path": "/pred_results/calc_ruggedness.py",
+                    "bytes_written": 1231,
+                    "file_size": 1231,
+                    "line_count": 43,
+                    "created_new": true,
+                    "message": "File created successfully. 43 lines, 1231 bytes."
+                },
+                "thought_1": "The Python script /pred_results/calc_ruggedness.py has been created. It reads the elevation data, computes terrain ruggedness, visualizes, and saves the result as required. I should now finish the task by submitting the absolute path to this code file.",
+                "tool_name_1": "finish",
+                "tool_args_1": {},
+                "observation_1": "Completed."
+            },
+            "reasoning": "To address the task, I created a Python script that calculates terrain ruggedness based on the elevation data in MountainLionNew/Elevation.tif. The ruggedness is determined by computing the mean absolute difference between each cell and its 8 neighbors (using a 3x3 window). The script uses rasterio to read the raster, numpy and scipy for computation, and matplotlib for visualization. The ruggedness map is then saved as /pred_results/ruggedness.png. The script is stored in /pred_results/calc_ruggedness.py, following all instructions regarding absolute paths and output format.",
+            "absolute_code_file_path": "/pred_results/calc_ruggedness.py"
+        },
+        "final_path": "/pred_results/calc_ruggedness.py"
+    },
+    {
+        "score": 1.0,
+        "score_dict": {
+            "instance_id": "46",
+            "valid_program": 1,
+            "success_rate": 1,
+            "codebert_score": 1.0,
+            "log_info": "['Figure 1 preserves the map\u2019s semantic intent and underlying structure but differs in the color scale, value range, and label wording. These are minor imperfections; the core meaning is correct.  \\n[FINAL SCORE]: 72', '[FINAL SCORE]: 70\\n\\nFigure 1 preserves the overall trend, variable meaning, and spatial structure compared to Figure 2. There are differences in color mapping, maximum value, and axis presentation, but semantic intent is mostly correct. Minor inconsistencies and scale mismatch reduce the score within the 60\u201380 bin.', 'Figure 1 preserves the correct structure, main features, and overall trend compared to the ground-truth Figure 2. There are differences in color mapping, data range, and label precision, but semantic meaning and grouping are maintained.\\n\\n[FINAL SCORE]: 72']",
+            "submitted": true,
+            "abs_code_path_submitted": "/pred_results/calc_ruggedness.py"
+        }
+    }
+]

@@ -1,0 +1,2 @@
+2026/02/27 08:29:03 INFO dspy.evaluate.evaluate: Average Metric: 0.45 / 1 (45.0%)
+2026/02/27 08:29:03 INFO dspy.evaluate.evaluate: Saved evaluation results to runs/progress/run_name/optimized_react.json

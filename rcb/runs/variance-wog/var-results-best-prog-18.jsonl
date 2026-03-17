@@ -1,0 +1,5 @@
+{"program_index": 18, "var_idx": 0, "complete_result": {"overall_accuracy": 25.69, "mean_score": 0.2569, "ntotal": 144}}
+{"program_index": 18, "var_idx": 1, "complete_result": {"overall_accuracy": 25.69, "mean_score": 0.2569, "ntotal": 144}}
+{"program_index": 18, "var_idx": 2, "complete_result": {"overall_accuracy": 25.69, "mean_score": 0.2569, "ntotal": 144}}
+{"program_index": 18, "var_idx": 3, "complete_result": {"overall_accuracy": 25.69, "mean_score": 0.2569, "ntotal": 144}}
+25.69

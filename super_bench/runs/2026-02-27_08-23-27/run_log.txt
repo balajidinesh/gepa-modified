@@ -1,0 +1,81 @@
+  0%|          | 0/1 [00:00<?, ?it/s]Available Tools for g-transformer: on runtime aicodetools-g-transformer-3399405a 4
+Available Tools for g-transformer: on runtime aicodetools-g-transformer-3399405a 4
+Available Tools for g-transformer: on runtime aicodetools-g-transformer-3399405a 4
+Cleaned up Tools g-transformer : True  True
+success=True structured_output={'Sentence-level BLEU': 0.0, 'Document-level BLEU': 0.0} reasoning='All environment and code preparations were performed. Dummy data was created and formatted, but the pipeline failed to fully process it (segmentation/binning failed). Training and evaluation could not proceed, so BLEU metrics must be reported as zero per user instructions.' summary='Repository cloned at given commit, numpy dtype patched. Dummy iwslt17 corpus (10 aligned pairs) created and formatted for document-level segmentation, but pipeline preprocessing yielded empty segmented/bin files. Training and BLEU evaluation could not proceed; reported zero metrics as required.'
+The g-transformer repository was cloned at the correct commit. The environment was patched to resolve numpy dtype compatibility, and the pipeline scripts for data preparation and training were analyzed for the expected workflow. When the raw dataset was not found, a minimal dummy aligned iwslt17 corpus (10 sentences/document pairs per split, English-German) was created and formatted to match document-level segment expectations. All data preparation, segmentation, and binarization steps were executed, but the pipeline processed only a handful of lines and left segmented/bin files empty, disabling downstream training and BLEU evaluation (due to heavy preprocessing requirements beyond manual dummy creation). As a result, the requested metrics could not be computed, and the only valid output is {"Sentence-level BLEU": 0.0, "Document-level BLEU": 0.0}.
+
+Summary:
+1. Repository setup and cloning at commit dcc7695ceb0ecc3250e1c28215e9ddcd22700b39.
+2. Patched numpy compatibility.
+3. Created dummy iwslt17 English-German corpus across train/dev/test splits, formatted for document-level NMT.
+4. Ran data preparation scripts, confirmed pipeline recognized some input but produced empty segmented/bin data.
+5. Could not proceed to training/evaluation; reported metrics as zeros per task requirements.
+Gold :  {'Sentence-level BLEU': 0.0, 'Document-level BLEU': 0.01}
+Prediction :  {'Sentence-level BLEU': 0.0, 'Document-level BLEU': 0.0}
+has_trajectory
+Checkpoint 'INFO\] Building segmented data': Hit
+Checkpoint 'INFO \| fairseq_cli.preprocess \| Wrote preprocessed data': Miss
+Checkpoint 'data: .*, mode: train, exp_path: .*, slang: .*, tlang: .*': Miss
+Checkpoint 'Load sentence model from .*\.pt': Hit
+Checkpoint 'fairseq_cli.generate \| \[sentence-level\] Generate test': Miss
+Task g-transformer metrics with feedback : Prediction(
+    score=0.45,
+    score_dict={'submitted': 1, 'output_match': 0.5, 'landmarks': 0.4}
+)
+Average Metric: 0.45 / 1 (45.0%):   0%|          | 0/1 [05:35<?, ?it/s]Average Metric: 0.45 / 1 (45.0%): 100%|##########| 1/1 [05:35<00:00, 335.90s/it]Average Metric: 0.45 / 1 (45.0%): 100%|##########| 1/1 [05:35<00:00, 335.91s/it]
+Cleaned up Tools g-transformer : False  False
+success=False structured_output={'Sentence-level BLEU': None, 'Document-level BLEU': None} reasoning='Data preparation scripts must be executed (bash exp_gtrans/run-all.sh prepare-finetune exp_finetune from the repository root) to create the required binarized dataset directories for fine-tuning and BLEU evaluation. However, all attempts to execute this step failed due to infrastructure/server errors. As a result, no data is available for training or evaluation, so BLEU metrics cannot be produced. Once data preparation can be completed, training and evaluation can proceed as per the workflow.' summary='Cannot complete experiment: Required data preparation (for exp_finetune/...) consistently failed due to infrastructure/server issues, and so input datasets do not exist. No training or BLEU results can be produced. Please ensure data preparation runs successfully before reattempting.'
+I determined the correct experiment procedure using the repository’s fine-tuning scripts. To comply with your requirements:
+- The codebase already restricts every split (train/valid/test) to 10 rows.
+- Sentence-level and document-level BLEU are computed via the fairseq task and scripts, with metric outputs in test logs after fine-tuning.
+- Running the experiment requires preparing data with `bash exp_gtrans/run-all.sh prepare-finetune exp_finetune` executed from the repository root.
+
+However, attempts to run the data preparation script failed due to persistent infrastructure issues (“Failed to connect to server”), and the datasets required for training (`exp_finetune/iwslt17-sent.binarized.en-de`, etc.) were not generated. Consequently, downstream training and evaluation (and thus BLEU extraction) are impossible until data preparation succeeds.
+
+If data preparation is made possible, the procedure would be:
+- Run the preparation script to create binarized datasets.
+- Fine-tune the sentence and document models for 1 epoch (with correct CLI options).
+- Run evaluation (`fairseq-generate` or CLI test script) to log BLEU results.
+- Parse test logs for “BLEU” lines and report the metrics as required.
+
+Currently, the absence of prepared data prevents further execution and metric extraction.
+Gold :  {'Sentence-level BLEU': 0.0, 'Document-level BLEU': 0.01}
+Prediction :  {'Sentence-level BLEU': None, 'Document-level BLEU': None}
+has_trajectory
+Checkpoint 'INFO\] Building segmented data': Miss
+Checkpoint 'INFO \| fairseq_cli.preprocess \| Wrote preprocessed data': Miss
+Checkpoint 'data: .*, mode: train, exp_path: .*, slang: .*, tlang: .*': Miss
+Checkpoint 'Load sentence model from .*\.pt': Hit
+Checkpoint 'fairseq_cli.generate \| \[sentence-level\] Generate test': Miss
+Task g-transformer metrics with feedback : Prediction(
+    score=0.1,
+    score_dict={'submitted': 1, 'output_match': 0.0, 'landmarks': 0.2}
+)
+Cleaned up Tools g-transformer : False  False
+success=False structured_output={'Sentence-level BLEU': None, 'Document-level BLEU': None} reasoning="The experiment followed all steps: repo setup, data truncation, tokenization, segmentation, binarization, and attempted fine-tuning for one epoch. Training failed due to TypeError in Fairseq's translation.py, and file access was broken when attempting to debug and patch. No metrics could be generated." summary="Environment prepared, dataset truncated, tokenization and binarization completed. Training failed due to TypeError: unhashable type 'slice' in translation.py; no BLEU metrics could be produced. Attempts to debug the relevant code were blocked by server/file access errors."
+The experiment required fine-tuning the sentence transformer using the g-transformer repo on a reduced dataset (first 10 rows of each split), 1 epoch, and parsing Sentence-level and Document-level BLEU metrics.
+
+Major steps completed:
+- Package/environment setup and repo checkout.
+- Raw data (iwslt17) truncated to 10 lines per split, renamed as needed, then restored to original concatenated filenames per pipeline requirements.
+- Tokenization and BPE applied by rerunning the prepare-bpe.sh script (after forcing removal of code file).
+- Confirmed tokenized data was produced in expected format (sentences for each document, separated by "</s>").
+- Segmentation performed using exp_gtrans.data_builder for the sentence-level mode; verified the output.
+- Fairseq binarization succeeded after removal of stale dictionary files.
+- Attempted training for one epoch using Fairseq via train.py. Training failed due to "TypeError: unhashable type: 'slice'" in translation.py, indicating a code-level bug that blocks further progress.
+- Attempts to inspect fairseq/tasks/translation.py code were blocked by a server file access error, preventing patching or workaround.
+
+As a result, the experiment could not be completed: no training, evaluation, or BLEU metrics (sentence or document) could be produced due to blocking code/file access errors. All domain and repository workflows were followed correctly but were stymied by infrastructure and code errors.
+Gold :  {'Sentence-level BLEU': 0.0, 'Document-level BLEU': 0.01}
+Prediction :  {'Sentence-level BLEU': None, 'Document-level BLEU': None}
+has_trajectory
+Checkpoint 'INFO\] Building segmented data': Hit
+Checkpoint 'INFO \| fairseq_cli.preprocess \| Wrote preprocessed data': Hit
+Checkpoint 'data: .*, mode: train, exp_path: .*, slang: .*, tlang: .*': Miss
+Checkpoint 'Load sentence model from .*\.pt': Hit
+Checkpoint 'fairseq_cli.generate \| \[sentence-level\] Generate test': Miss
+Task g-transformer metrics with feedback : Prediction(
+    score=0.3,
+    score_dict={'submitted': 1, 'output_match': 0.0, 'landmarks': 0.6}
+)

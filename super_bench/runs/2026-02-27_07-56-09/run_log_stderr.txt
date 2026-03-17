@@ -1,0 +1,1 @@
+2026/02/27 07:56:54 INFO dspy.evaluate.evaluate: Average Metric: 0.0 / 1 (0.0%)

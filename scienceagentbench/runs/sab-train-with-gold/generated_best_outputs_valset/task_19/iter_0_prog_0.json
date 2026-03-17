@@ -1,0 +1,57 @@
+[
+    {
+        "instance_id": "85",
+        "domain": "Bioinformatics",
+        "subtask_categories": "Feature Engineering",
+        "task_inst": "Analyze the given saliva data and compute features that represent sample statistics or distribution (e.g., mean, location of max/min value, skewness) for each subject. Save the computed features along with subject condition as a dictionary of dictionaries into a json file \"pred_results/saliva_pred.json\".",
+        "domain_knowledge": "The BioPsyKit function biopsykit.saliva.standard_features computes a set of standard features on saliva data. The following list of features is computed. argmax: Argument (=index) of the maximum value, mean: Mean value, std: Standard deviation, skew: Skewness, kurt: Kurtosis.\n\nEach subject is either in a Control group or an Intervention group. The subject's group is denoted by the \"condition\" attribute.\n\nThe json library contains the json.dump function, which can be used to write data to a JSON file.",
+        "dataset_folder_tree": "|-- saliva_data/\n|---- data.pkl",
+        "dataset_preview": "[START Preview of saliva_data/data.pkl, which is a pandas DataFrame, and (condition, subject, sample) is the index]\ncondition,subject,sample,cortisol\nIntervention,Vp01,0,6.988899999999999\nIntervention,Vp01,1,7.0332\nIntervention,Vp01,2,5.7767\nIntervention,Vp01,3,5.2579\nIntervention,Vp01,4,5.00795\n[END Preview of saliva_data/data.pkl]",
+        "gold_program_name": "saliva.py",
+        "output_fname": "pred_results/saliva_pred.json",
+        "eval_script_name": "biopsykit_saliva_eval.py",
+        "gold_code": "import pickle\nimport biopsykit as bp\nimport json\n\n\ndef main():\n\n    with open('benchmark/datasets/saliva_data/data.pkl', 'rb') as f:\n        data = pickle.load(f)\n\n    standard_features = bp.saliva.standard_features(data)\n\n    output = {}\n\n    for idx in range(len(standard_features)):\n        line = standard_features.iloc[idx]\n        condition, subject = line.name\n        cortisol_argmax = line['cortisol_argmax']\n        cortisol_mean = line['cortisol_mean']\n        cortisol_std = line['cortisol_std']\n        cortisol_skew = line['cortisol_skew']\n        item = {\n            'condition': condition,\n            'argmax': cortisol_argmax,\n            'mean': cortisol_mean,\n            'std': cortisol_std,\n            'skew': cortisol_skew,\n        }\n        output[subject] = item\n    \n    with open('pred_results/saliva_pred.json', 'w') as f:\n        json.dump(output, f)\n\n\nif __name__ == '__main__':\n    main()\n\n",
+        "add_inst": "1. The dataset path: /benchmark/datasets/*\n2. use The output path must start with absoulute path :  /pred_results/* \n3. You have to submit the .py python file path for the task\n4. code for the task in the .py file and return its absolute file path "
+    },
+    {
+        "generated_code": "# Script to compute features per subject from saliva_data/data.pkl and output to /pred_results/saliva_pred.json\nimport pandas as pd\nimport numpy as np\nimport json\nfrom scipy.stats import skew\n\n# Load data\ninput_path = '/benchmark/datasets/saliva_data/data.pkl'\ndf = pd.read_pickle(input_path)\n\n# Reset index to columns if necessary\nif not isinstance(df, pd.DataFrame) or not set(['condition', 'subject', 'sample']).issubset(df.reset_index().columns):\n    df = df.reset_index()\n\nresults = {}\n\nfor (condition, subject), subdf in df.groupby(['condition', 'subject']):\n    cortisol = subdf.sort_values('sample')['cortisol'].values\n    features = {\n        'mean': float(np.mean(cortisol)),\n        'std': float(np.std(cortisol)),\n        'min_value': float(np.min(cortisol)),\n        'min_location': int(np.argmin(cortisol)),\n        'max_value': float(np.max(cortisol)),\n        'max_location': int(np.argmax(cortisol)),\n        'skewness': float(skew(cortisol)),\n        'num_samples': int(len(cortisol))\n    }\n    results[subject] = {'condition': condition, 'features': features}\n\nwith open('/pred_results/saliva_pred.json', 'w') as f:\n    json.dump(results, f, indent=2)\n",
+        "result": {
+            "trajectory": {
+                "thought_0": "I need to write a Python script that loads the saliva data from the pickle file, computes statistical features (mean, min/max locations, skewness, etc.) for each subject, saves the results in the required dictionary of dictionaries format along with the subject's condition, and writes the output to \"/pred_results/saliva_pred.json\". I'll start by drafting the script file inside an appropriate directory.",
+                "tool_name_0": "write_file",
+                "tool_args_0": {
+                    "file_path": "/pred_results/saliva_feature_extraction.py",
+                    "content": "# Script to compute features per subject from saliva_data/data.pkl and output to /pred_results/saliva_pred.json\nimport pandas as pd\nimport numpy as np\nimport json\nfrom scipy.stats import skew\n\n# Load data\ninput_path = '/benchmark/datasets/saliva_data/data.pkl'\ndf = pd.read_pickle(input_path)\n\n# Reset index to columns if necessary\nif not isinstance(df, pd.DataFrame) or not set(['condition', 'subject', 'sample']).issubset(df.reset_index().columns):\n    df = df.reset_index()\n\nresults = {}\n\nfor (condition, subject), subdf in df.groupby(['condition', 'subject']):\n    cortisol = subdf.sort_values('sample')['cortisol'].values\n    features = {\n        'mean': float(np.mean(cortisol)),\n        'std': float(np.std(cortisol)),\n        'min_value': float(np.min(cortisol)),\n        'min_location': int(np.argmin(cortisol)),\n        'max_value': float(np.max(cortisol)),\n        'max_location': int(np.argmax(cortisol)),\n        'skewness': float(skew(cortisol)),\n        'num_samples': int(len(cortisol))\n    }\n    results[subject] = {'condition': condition, 'features': features}\n\nwith open('/pred_results/saliva_pred.json', 'w') as f:\n    json.dump(results, f, indent=2)\n"
+                },
+                "observation_0": {
+                    "success": true,
+                    "file_path": "/pred_results/saliva_feature_extraction.py",
+                    "bytes_written": 1171,
+                    "file_size": 1171,
+                    "line_count": 33,
+                    "created_new": true,
+                    "message": "File created successfully. 33 lines, 1171 bytes."
+                },
+                "thought_1": "The Python script for feature extraction and saving the results is written successfully at the specified location. I will now return its absolute file path as required.",
+                "tool_name_1": "finish",
+                "tool_args_1": {},
+                "observation_1": "Completed."
+            },
+            "reasoning": "The problem requires extracting statistical features (mean, min/max values and locations, skewness, etc.) for the 'cortisol' column, grouped by each subject, while associating these features with the subject's condition. The data is stored as a pickle with a multi-index; the script loads this data, resets the index if necessary, performs the required groupby computations, and saves the results in the required nested dictionary format (subject \u2192 dict with 'condition' and 'features') to an absolute path JSON. The result is a Python script saved as `/pred_results/saliva_feature_extraction.py`.",
+            "absolute_code_file_path": "/pred_results/saliva_feature_extraction.py"
+        },
+        "final_path": "/pred_results/saliva_feature_extraction.py"
+    },
+    {
+        "score": 0.4011308252811432,
+        "score_dict": {
+            "instance_id": "85",
+            "valid_program": 1,
+            "success_rate": 0,
+            "codebert_score": 0.8022616505622864,
+            "log_info": "KeyError('argmax')",
+            "submitted": true,
+            "abs_code_path_submitted": "/pred_results/saliva_feature_extraction.py"
+        }
+    }
+]
