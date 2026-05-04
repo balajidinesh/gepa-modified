@@ -10,7 +10,6 @@ from .sab_utils import get_runtime_tools, close_runtime_tools, read_file_from_co
 
 from ..dspy_program import LangProBeDSPyMetaProgram
 
-
 class SABResponse(dspy.Signature):
     """Solve the question and provide the answer in the correct format."""
     # instance_id: str = dspy.InputField()
@@ -30,14 +29,12 @@ class SABReactAgent(LangProBeDSPyMetaProgram,dspy.Module):
         self.tool_object = None
         self.tools = self.get_fresh_tools(str(uuid.uuid4()))
 
-        
         self.react = dspy.ReAct(
             signature=SABResponse,
             tools=self.tools,
             max_iters= self.max_iters
             )
         
-
     def get_fresh_tools(self, id):
         tools, tool_object =  get_runtime_tools(id)
 

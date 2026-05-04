@@ -7,7 +7,6 @@ from .rcb_program import RCB
 from .rcb_utils import rcb_score, rcb_score_with_feedback, rcb_score_with_gold_feedback
 
 
-
 benchmark = [
     BenchmarkMeta(
         RCBenchmark,

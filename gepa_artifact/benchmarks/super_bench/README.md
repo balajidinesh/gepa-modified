@@ -10,47 +10,23 @@ super-bench/
 ├── super_data.py         # SuperBenchmark class for data loading
 ├── super_program.py      # SuperReactAgent implementation
 ├── super_utils.py        # Evaluation functions and utilities
-├── run_super_bench.py    # Main runner script
+├── run_super_bench.py    # Main runner script [not validated]
 └── README.md            # This file
 ```
 
-## Features
 
-- **Fresh Docker containers** for each task evaluation
-- **Configurable task IDs** - run specific Super benchmark instances
-- **Clean evaluation metrics** - submission rate, output matching, landmark tracking
-- **Organized code structure** following existing benchmark patterns
-- **Easy-to-use runner script** with command line options
 
-## Usage
 
-### Basic Usage
+## Requirements
 
-```bash
-# Run default tasks (mera, team, dir-gnn)
-python run_super_bench.py
+- Python 3.8+ [please check we used Python 3.12.11 ]
+- DSPy framework
+- aicodetools (for Docker runtime) need this for coding agent
+- datasets library
+- pydantic
+- dotenv
+- Docker with `superbench:latest` image
 
-# Run specific task IDs
-python run_super_bench.py --task_ids mera team
-
-# Run a single task
-python run_super_bench.py --single mera
-
-# Run all available tasks
-python run_super_bench.py --task_ids all
-
-# Customize max iterations
-python run_super_bench.py --task_ids mera --max_iters 50
-```
-
-### Available Task IDs
-
-- `mera` - Meta-reasoning tasks
-- `team` - Team collaboration tasks  
-- `dir-gnn` - Directory GNN tasks
-- `scicode` - Scientific code tasks
-- `math-comp` - Mathematical computation tasks
-- `ml-engineering` - ML engineering tasks
 
 ### Programmatic Usage
 
@@ -88,15 +64,6 @@ metrics = super_metric(example, result)
 print(metrics)
 ```
 
-## Requirements
-
-- Python 3.8+
-- DSPy framework
-- aicodetools (for Docker runtime)
-- datasets library
-- pydantic
-- dotenv
-- Docker with `superbench:latest` image
 
 ## Environment Setup
 
@@ -123,22 +90,6 @@ lm = dspy.LM("azure/your_deployment_name")
 dspy.configure(lm=lm)
 ```
 
-**Required Environment Variables:**
-- `AZURE_API_KEY` - Your Azure OpenAI API key
-- `AZURE_API_BASE` - Your Azure OpenAI endpoint URL
-- `AZURE_API_VERSION` - API version (e.g., 2024-02-15-preview)
-
-**Optional Environment Variables:**
-- `AZURE_AD_TOKEN` - Azure AD token (if using Azure AD authentication)
-- `AZURE_API_TYPE` - Set to "azure" (usually auto-detected)
-
-## Docker Container Management
-
-The benchmark automatically:
-- Creates fresh Docker containers for each task
-- Provides clean tool instances (read_file, write_file, edit_file, run_command)
-- Handles container cleanup between evaluations
-- Logs all agent interactions and results
 
 ## Output
 
@@ -153,10 +104,3 @@ The benchmark tracks:
 - **Output match**: % of correct answers vs gold standard
 - **Landmarks**: % of required checkpoints hit during execution
 - **Overall score**: Average of output match and landmarks
-
-## Integration
-
-This benchmark is designed to integrate with:
-- GEPA optimization framework (future)
-- Existing benchmark evaluation pipelines
-- Custom metric functions and feedback systems

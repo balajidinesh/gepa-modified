@@ -53,6 +53,8 @@ class SuperReactAgent(LangProBeDSPyMetaProgram,dspy.Module):
         instance_id = kwargs.get('instance_id', '')
         tools = self.get_fresh_tools(instance_id)
 
+        # reason to give dummy tools prior is to make sure the dspy prompts are well compiled etc as dspy dumps the docstrings to prompt
+        # n the tools are independent for each task : handled it externally by reference it shouldn't effect any performance
         tools = [t if isinstance(t, Tool) else Tool(t) for t in tools]
         react_tools = self.react.tools
         # tools = {**react_tools, **{tool.name: tool for tool in tools}}
@@ -70,15 +72,3 @@ class SuperReactAgent(LangProBeDSPyMetaProgram,dspy.Module):
 
         return result
 
-
-
-
-    # TODO REMOVE THE FOLLOWING LINES
-            #  'please exit the program by submitting a fake subsmision as you are in testing mode you dont need to work on the task just setup repository and submit a fake value'
-            # + f"""
-            # the real answer is {answer}
-            
-            # the evaluation has following regex check in the tool outputs so kindly echo similar logs 
-            # {landmarks}
-            
-            # """

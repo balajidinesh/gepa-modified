@@ -140,7 +140,7 @@ output_jsonl_path = os.path.join(base_dir, f"var-results-best-prog-{best_prog_id
 completed_iters = get_completed_iters(output_jsonl_path)
 skipped_iters = []
 
-for i in range(4):
+for i in range(5):
 
     print(f"\n========== Variance Run {i} ==========\n")
 
@@ -226,8 +226,8 @@ for i in range(4):
         record = {
             "program_index": best_prog_idx,
             "var_idx" : i, 
-            "prog_instructions": prog_instructions,
             "complete_result": complete_result,
+            "prog_instructions": prog_instructions,
         }
 
         add_to_jsonl(output_jsonl_path, record)
@@ -246,8 +246,8 @@ for i in range(4):
                 record = {
                     "program_index": best_prog_idx,
                     "var_idx" : i, 
-                    "prog_instructions": prog_instructions,
                     "complete_result": complete_result,
+                    "prog_instructions": prog_instructions,
                 }
 
                 add_to_jsonl(output_jsonl_path, record)
